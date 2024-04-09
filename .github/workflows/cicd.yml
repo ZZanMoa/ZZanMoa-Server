@@ -29,6 +29,8 @@ jobs:
 
       - name: Build and Test
         run: ./gradlew build test
+        env:
+          OPEN_API_KEY: ${{ secrets.OPEN_API_KEY }}
   
       - name: Make Zip File
         run: zip -qq -r ./$GITHUB_SHA.zip .
