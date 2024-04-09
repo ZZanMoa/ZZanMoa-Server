@@ -8,6 +8,6 @@ import org.springframework.context.annotation.Configuration;
 @Getter
 public class OpenAPIConfig {
 
-    @Value("${openapi.authentication.key}")
+    @Value("${OPEN_API_KEY}")
     private String key;
 }
