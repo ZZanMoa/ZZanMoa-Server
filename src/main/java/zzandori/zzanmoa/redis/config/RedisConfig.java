@@ -1,6 +1,7 @@
 package zzandori.zzanmoa.redis.config;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,11 +15,15 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Configuration
 @EnableRedisRepositories
 public class RedisConfig {
-    private final RedisProperties redisProperties;
+
+    @Value("${SPRING_DATA_REDIS_HOST}")
+    private String SPRING_DATA_REDIS_HOST;
+    @Value("${SPRING_DATA_REDIS_PORT}")
+    private int SPRING_DATA_REDIS_PORT;
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
-        return new LettuceConnectionFactory(redisProperties.getHost(), redisProperties.getPort());
+        return new LettuceConnectionFactory(SPRING_DATA_REDIS_HOST, SPRING_DATA_REDIS_PORT);
     }
 
     @Bean
