@@ -31,6 +31,8 @@ jobs:
         run: ./gradlew build test
         env:
           OPEN_API_KEY: ${{ secrets.OPEN_API_KEY }}
+          SPRING_DATA_REDIS_HOST: ${{ secrets.REDIS_HOST }}
+          SPRING_DATA_REDIS_PORT: ${{ secrets.REDIS_PORT }}
   
       - name: Make Zip File
         run: zip -qq -r ./$GITHUB_SHA.zip .
