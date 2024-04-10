@@ -18,18 +18,34 @@ configurations {
 }
 
 repositories {
+	dependencies {
+		// SpringBoot
+		implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+		implementation 'org.springframework.boot:spring-boot-starter-web'
+
+		// Test
+		testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+		// Lombok
+		compileOnly 'org.projectlombok:lombok'
+		annotationProcessor 'org.projectlombok:lombok'
+
+		// H2
+		runtimeOnly 'com.h2database:h2'
+
+		// Redis
+		implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-redis', version: '3.2.4'
+
+		// Jackson
+		implementation 'com.fasterxml.jackson.core:jackson-core:2.16.1'
+	}
 	mavenCentral()
 }
 
 dependencies {
-	implementation 'com.fasterxml.jackson.core:jackson-core:2.16.1'
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'com.h2database:h2'
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.projectlombok:lombok:1.18.22'
 }
+
 
 tasks.named('test') {
 	useJUnitPlatform()
