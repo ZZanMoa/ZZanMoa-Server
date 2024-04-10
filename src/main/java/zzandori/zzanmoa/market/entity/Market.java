@@ -6,11 +6,22 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import java.sql.Date;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 
 @Entity
-@Table(name = "market")
+@Builder
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
+@Table(name = "market", uniqueConstraints = @UniqueConstraint(columnNames = {"marketId", "itemId"}))
 public class Market {
 
     @Id
@@ -37,4 +48,5 @@ public class Market {
 
     @Column(name = "district_name")
     private String districtName;
+
 }
