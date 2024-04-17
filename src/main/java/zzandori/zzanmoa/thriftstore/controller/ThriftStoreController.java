@@ -20,6 +20,6 @@ public class ThriftStoreController {
         @PathVariable("endIndex") String endIndex) throws IOException {
 
         String json = thriftStoreService.connectOpenAPI(startIndex, endIndex);
-        System.out.println(json);
+        thriftStoreService.processAndStoreData(json);
     }
 }

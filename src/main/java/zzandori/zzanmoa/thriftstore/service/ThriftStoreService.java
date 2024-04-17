@@ -23,6 +23,21 @@ public class ThriftStoreService {
         return openApiService.connectOpenAPI(sb);
     }
 
+    public void processAndStoreData(String json) throws IOException {
+        List<ThriftStore> storeList = processJsonToStoreList(json);
+        System.out.println(storeList.toString());
+        saveStoreList(storeList);
+    }
+
+    private List<ThriftStore> processJsonToStoreList(String json) throws IOException {
+        return thriftDataProcessor.parseJsonToStoreList(json);
+    }
+
+    private void saveStoreList(List<ThriftStore> storeList) {
+        if (!storeList.isEmpty()) {
+            thriftStoreRepository.saveAll(storeList);
+        }
+    }
 
 }
 
