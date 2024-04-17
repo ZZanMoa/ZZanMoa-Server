@@ -24,9 +24,13 @@ public class MarketService {
     private final OpenAPIService openApiService;
     private final MarketRepository marketRepository;
 
-    public void getMarkets() throws IOException {
+    public MarketResponseDto getMarkets() {
+        MarketResponseDto marketResponseDto = new MarketResponseDto();
+        marketResponseDto.addMarket(marketRepository.findDistinctMarketName());
 
+        return marketResponseDto;
     }
+
 
     public void connectOpenAPI(String startIndex, String endIndex) throws IOException {
         StringBuilder sb = openApiService.initRequest("ListNecessariesPricesService", startIndex,
@@ -89,26 +93,5 @@ public class MarketService {
 
         return Date.valueOf(localDate);
     }
-
-    private MarketResponseDto convertToDto(String json) throws IOException {
-
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode rootNode = mapper.readTree(json);
-        JsonNode rows = rootNode.path("ListNecessariesPricesService").path("row");
-
-        MarketResponseDto marketResponseDto = new MarketResponseDto();
-
-        if (rows.isArray()) {
-            for (JsonNode row : rows) {
-                System.out.println(row);
-                String marketName = row.get("M_NAME").asText();
-                String district = row.get("M_GU_NAME").asText();
-                marketResponseDto.addMarket(district, marketName);
-            }
-        }
-
-        return marketResponseDto;
-    }
-
 
 }

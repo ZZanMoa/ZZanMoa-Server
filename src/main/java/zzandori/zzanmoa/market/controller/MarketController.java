@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import zzandori.zzanmoa.market.dto.MarketResponseDto;
 import zzandori.zzanmoa.market.service.MarketService;
 
 @RestController
@@ -16,8 +17,8 @@ public class MarketController {
     private final MarketService marketService;
 
     @GetMapping("/get")
-    public void getMarkets() throws IOException {
-        marketService.getMarkets();
+    public MarketResponseDto getMarkets() {
+        return marketService.getMarkets();
     }
 
     @GetMapping("/connectAPI/{startIndex}/{endIndex}")
