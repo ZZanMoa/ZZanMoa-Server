@@ -25,6 +25,7 @@ public class MarketController {
     public void connectOpenAPI(@PathVariable("startIndex") String startIndex,
         @PathVariable("endIndex") String endIndex) throws IOException {
 
-        marketService.connectOpenAPI(startIndex, endIndex);
+        String json = marketService.connectOpenAPI(startIndex, endIndex);
+        marketService.processAndStoreMarketData(json);
     }
 }
