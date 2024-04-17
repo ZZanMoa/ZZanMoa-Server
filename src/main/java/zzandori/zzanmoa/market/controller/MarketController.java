@@ -1,5 +1,6 @@
 package zzandori.zzanmoa.market.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import zzandori.zzanmoa.market.dto.MarketResponseDto;
 import zzandori.zzanmoa.market.service.MarketService;
 
+@Tag(name = "MarketController", description = "시장 가격 비교를 위해 시장 정보를 가져오는 컨트롤러")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/market")
