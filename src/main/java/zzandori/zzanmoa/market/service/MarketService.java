@@ -2,6 +2,7 @@ package zzandori.zzanmoa.market.service;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,7 +30,8 @@ public class MarketService {
     public String connectOpenAPI(String startIndex, String endIndex) throws IOException {
         StringBuilder sb = openApiService.initRequest("ListNecessariesPricesService", startIndex,
             endIndex);
-        sb.append("/").append("/").append("/" + URLEncoder.encode("2024-03", "UTF-8"));
+        sb.append("/").append("/").append("/").append(URLEncoder.encode("2024-03",
+            StandardCharsets.UTF_8));
 
         return openApiService.connectOpenAPI(sb);
     }
