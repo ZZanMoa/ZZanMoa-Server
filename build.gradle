@@ -1,52 +1,55 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.2.4'
-	id 'io.spring.dependency-management' version '1.1.4'
+    id 'java'
+    id 'org.springframework.boot' version '3.2.4'
+    id 'io.spring.dependency-management' version '1.1.4'
 }
 
 group = 'zzandori'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	sourceCompatibility = '17'
+    sourceCompatibility = '17'
 }
 
 configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
 }
 
 repositories {
-	dependencies {
-		// SpringBoot
-		implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-		implementation 'org.springframework.boot:spring-boot-starter-web'
+    dependencies {
+        // SpringBoot
+        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+        implementation 'org.springframework.boot:spring-boot-starter-web'
 
-		// Test
-		testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        // Test
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
-		// Lombok
-		compileOnly 'org.projectlombok:lombok'
-		annotationProcessor 'org.projectlombok:lombok'
+        // Lombok
+        compileOnly 'org.projectlombok:lombok'
+        annotationProcessor 'org.projectlombok:lombok'
 
-		// H2
-		runtimeOnly 'com.h2database:h2'
+        // MySQL
+        runtimeOnly 'com.mysql:mysql-connector-j'
 
-		// Redis
-		implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-redis', version: '3.2.4'
+        // H2
+        runtimeOnly 'com.h2database:h2'
 
-		// Jackson
-		implementation 'com.fasterxml.jackson.core:jackson-core:2.16.1'
-	}
-	mavenCentral()
+        // Redis
+        implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-redis', version: '3.2.4'
+
+        // Jackson
+        implementation 'com.fasterxml.jackson.core:jackson-core:2.16.1'
+    }
+    mavenCentral()
 }
 
 dependencies {
-	testImplementation 'org.projectlombok:lombok:1.18.22'
+    testImplementation 'org.projectlombok:lombok:1.18.22'
 }
 
 
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }

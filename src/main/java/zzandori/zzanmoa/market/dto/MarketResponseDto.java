@@ -1,9 +1,7 @@
 package zzandori.zzanmoa.market.dto;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -11,14 +9,14 @@ import lombok.ToString;
 @ToString
 public class MarketResponseDto {
 
-    private Map<String, Set<String>> marketMap;
+    private List<String> market;
 
     public MarketResponseDto() {
-        this.marketMap = new HashMap<>();
+        this.market = new ArrayList<>();
     }
 
-    public void addMarket(String district, String marketName) {
-        this.marketMap.computeIfAbsent(district, k -> new HashSet<>()).add(marketName);
+    public void addMarket(List<String> marketName) {
+        this.market.addAll(marketName);
     }
 
 }

@@ -1,11 +1,14 @@
 package zzandori.zzanmoa.market.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import zzandori.zzanmoa.market.dto.MarketResponseDto;
+import zzandori.zzanmoa.market.entity.Market;
+import zzandori.zzanmoa.market.repository.MarketRepository;
 import zzandori.zzanmoa.openapi.service.OpenAPIService;
 
 @RequiredArgsConstructor
@@ -13,36 +16,39 @@ import zzandori.zzanmoa.openapi.service.OpenAPIService;
 public class MarketService {
 
     private final OpenAPIService openApiService;
+    private final MarketRepository marketRepository;
+    private final MarketDataProcessor marketDataProcessor;
 
-    public MarketResponseDto getMarkets() throws IOException {
-
-        return connectOpenAPI();
-    }
-
-    private MarketResponseDto connectOpenAPI() throws IOException {
-        StringBuilder sb = openApiService.initRequest("ListNecessariesPricesService", "1", "1000");
-        return convertToDto(openApiService.connectOpenAPI(sb));
-    }
-
-    private MarketResponseDto convertToDto(String json) throws IOException {
-
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode rootNode = mapper.readTree(json);
-        JsonNode rows = rootNode.path("ListNecessariesPricesService").path("row");
-
+    public MarketResponseDto getMarkets() {
         MarketResponseDto marketResponseDto = new MarketResponseDto();
-
-        if (rows.isArray()) {
-            for (JsonNode row : rows) {
-                System.out.println(row);
-                String marketName = row.get("M_NAME").asText();
-                String district = row.get("M_GU_NAME").asText();
-                marketResponseDto.addMarket(district, marketName);
-            }
-        }
+        marketResponseDto.addMarket(marketRepository.findDistinctMarketName());
 
         return marketResponseDto;
     }
 
+
+    public String connectOpenAPI(String startIndex, String endIndex) throws IOException {
+        StringBuilder sb = openApiService.initRequest("ListNecessariesPricesService", startIndex,
+            endIndex);
+        sb.append("/").append("/").append("/").append(URLEncoder.encode("2024-03",
+            StandardCharsets.UTF_8));
+
+        return openApiService.connectOpenAPI(sb);
+    }
+
+    public void processAndStoreMarketData(String json) throws IOException {
+        List<Market> marketList = processJsonToMarketList(json);
+        saveMarketList(marketList);
+    }
+
+    private List<Market> processJsonToMarketList(String json) throws IOException {
+        return marketDataProcessor.parseJsonToMarketList(json);
+    }
+
+    private void saveMarketList(List<Market> marketList) {
+        if (!marketList.isEmpty()) {
+            marketRepository.saveAll(marketList);
+        }
+    }
 
 }
