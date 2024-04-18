@@ -7,10 +7,10 @@ on:
     branches: [ "dev" ]
     
 env:
-  PROJECT_NAME: ec2-zzanmoa
-  BUCKET_NAME: ec2-zzanmoa-bucket
-  CODE_DEPLOY_APP_NAME: ec2-zzanmoa
-  DEPLOYMENT_GROUP_NAME: ec2-zzanmoa-instance
+  PROJECT_NAME: zzanmoa
+  BUCKET_NAME: zzanmoa-bucket
+  CODE_DEPLOY_APP_NAME: zzanmoa
+  DEPLOYMENT_GROUP_NAME: zzanmoa-instance
 
 jobs:
   deploy:
