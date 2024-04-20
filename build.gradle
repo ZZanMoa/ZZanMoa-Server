@@ -36,9 +36,6 @@ repositories {
         // H2
         runtimeOnly 'com.h2database:h2'
 
-        // Redis
-        implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-redis', version: '3.2.4'
-
         // Jackson
         implementation 'com.fasterxml.jackson.core:jackson-core:2.16.1'
 
