@@ -9,7 +9,7 @@ on:
 env:
   PROJECT_NAME: zzanmoa
   BUCKET_NAME: zzanmoa-bucket
-  CODE_DEPLOY_APP_NAME: zzanmoa
+  CODE_DEPLOY_APP_NAME: zzanmoa-deploy
   DEPLOYMENT_GROUP_NAME: zzanmoa-instance
 
 jobs:
@@ -31,12 +31,7 @@ jobs:
         run: ./gradlew build test
         env:
           OPEN_API_KEY: ${{ secrets.OPEN_API_KEY }}
-          SPRING_DATA_REDIS_HOST: ${{ secrets.REDIS_HOST }}
-          SPRING_DATA_REDIS_PORT: ${{ secrets.REDIS_PORT }}
-          MYSQL_DATASOURCE_URL: ${{ secrets.MYSQL_DATASOURCE_URL }}
-          MYSQL_DATASOURCE_USERNAME: ${{ secrets.MYSQL_DATASOURCE_USERNAME }}
-          MYSQL_DATASOURCE_PASSWORD: ${{ secrets.MYSQL_DATASOURCE_PASSWORD }}
-  
+          
       - name: Make Zip File
         run: zip -qq -r ./$GITHUB_SHA.zip .
         shell: bash
