@@ -29,11 +29,6 @@ jobs:
 
       - name: Build and Test
         run: ./gradlew build test
-        env:
-          OPEN_API_KEY: ${{ secrets.OPEN_API_KEY }}
-          MYSQL_DATASOURCE_URL: ${{ secrets.MYSQL_DATASOURCE_URL }}
-          MYSQL_DATASOURCE_USERNAME: ${{ secrets.MYSQL_DATASOURCE_USERNAME }}
-          MYSQL_DATASOURCE_PASSWORD: ${{ secrets.MYSQL_DATASOURCE_PASSWORD }}
   
       - name: Make Zip File
         run: zip -qq -r ./$GITHUB_SHA.zip .
