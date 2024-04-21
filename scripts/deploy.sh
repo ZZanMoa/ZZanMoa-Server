@@ -22,4 +22,5 @@ echo "> $JAR_NAME에 실행권한 추가"
 chmod +x $JAR_NAME
 
 echo "> Deploy - $JAR_PATH "
-nohup java -jar $JAR_PATH > /dev/null 2> /dev/null < /dev/null &
+nohup java -jar $JAR_PATH &
+
