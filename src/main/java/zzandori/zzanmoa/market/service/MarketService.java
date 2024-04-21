@@ -19,13 +19,6 @@ public class MarketService {
     private final MarketRepository marketRepository;
     private final MarketDataProcessor marketDataProcessor;
 
-    public MarketResponseDto getMarkets() {
-        MarketResponseDto marketResponseDto = new MarketResponseDto();
-        marketResponseDto.addMarket(marketRepository.findDistinctMarketName());
-
-        return marketResponseDto;
-    }
-
 
     public String connectOpenAPI(String startIndex, String endIndex) throws IOException {
         StringBuilder sb = openApiService.initRequest("ListNecessariesPricesService", startIndex,
