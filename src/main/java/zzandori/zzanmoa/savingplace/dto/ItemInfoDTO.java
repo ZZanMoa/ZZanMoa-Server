@@ -1,4 +1,4 @@
-package zzandori.zzanmoa.thriftstore.dto;
+package zzandori.zzanmoa.savingplace.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
