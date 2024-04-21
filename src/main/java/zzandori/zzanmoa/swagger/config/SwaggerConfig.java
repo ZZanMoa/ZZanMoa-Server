@@ -75,6 +75,18 @@ public class SwaggerConfig {
             .apiInfo(apiInfo());
     }
 
+    @Bean
+    public Docket SavingPlace(){
+        return new Docket(DocumentationType.OAS_30)
+            .groupName("SavingPlace-api")
+            .useDefaultResponseMessages(false)
+            .select()
+            .apis(RequestHandlerSelectors.basePackage("zzandori.zzanmoa.savingplace.controller"))
+            .paths(PathSelectors.ant("/savingplace/**"))
+            .build()
+            .apiInfo(apiInfo());
+    }
+
 
 
     private ApiInfo apiInfo() {
