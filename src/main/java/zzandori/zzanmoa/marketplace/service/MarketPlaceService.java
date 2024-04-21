@@ -3,6 +3,7 @@ package zzandori.zzanmoa.marketplace.service;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,13 +26,11 @@ public class MarketPlaceService {
     public void saveMarketPlaces() {
         List<Market> markets = marketRepository.findAll();
 
-        Set<String> marketIds = markets.stream()
-            .map(Market::getMarketId)
-            .collect(Collectors.toSet());
-
         markets.stream()
-            .filter(market -> marketIds.contains(market.getMarketId()))
-            .forEach(this::saveMarketPlace);
+            .collect(Collectors.toMap(Market::getMarketId, Function.identity(),
+                (existing, replacement) -> existing))
+            .values()
+            .forEach(market -> saveMarketPlace(market));
     }
 
     private void saveMarketPlace(Market market) {
@@ -48,7 +47,7 @@ public class MarketPlaceService {
             .map(marketPlace -> MarketPlaceResponseDto.builder()
                 .marketId(marketPlace.getMarketId())
                 .marketName(marketPlace.getMarketName())
-                .build()) // 빌더를 사용하여 DTO 객체 생성
+                .build())
             .collect(Collectors.toList());
     }
 }

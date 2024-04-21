@@ -10,7 +10,7 @@ import jakarta.persistence.UniqueConstraint;
 import lombok.Builder;
 import lombok.Getter;
 
-@Table(name = "market_place", uniqueConstraints = @UniqueConstraint(columnNames = {"marketId"}))
+@Table(name = "market_place")
 @Getter
 @Entity
 public class MarketPlace {
