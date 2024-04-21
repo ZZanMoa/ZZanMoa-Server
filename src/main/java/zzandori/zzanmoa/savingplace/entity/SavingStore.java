@@ -1,4 +1,4 @@
-package zzandori.zzanmoa.thriftstore.entity;
+package zzandori.zzanmoa.savingplace.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

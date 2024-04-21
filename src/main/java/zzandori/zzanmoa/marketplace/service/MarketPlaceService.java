@@ -1,16 +1,12 @@
 package zzandori.zzanmoa.marketplace.service;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import zzandori.zzanmoa.market.dto.MarketResponseDto;
 import zzandori.zzanmoa.market.entity.Market;
 import zzandori.zzanmoa.market.repository.MarketRepository;
-import zzandori.zzanmoa.market.service.MarketService;
 import zzandori.zzanmoa.marketplace.dto.MarketPlaceResponseDto;
 import zzandori.zzanmoa.marketplace.entity.MarketPlace;
 import zzandori.zzanmoa.marketplace.repository.MarketPlaceRepository;

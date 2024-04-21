@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import zzandori.zzanmoa.market.dto.MarketResponseDto;
 import zzandori.zzanmoa.market.service.MarketService;
 
 @Tag(name = "MarketController", description = "서울시 생필품 농수축산물 가격 정보를 저장하는 컨트롤러")

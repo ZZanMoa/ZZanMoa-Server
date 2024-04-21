@@ -1,33 +1,21 @@
 package zzandori.zzanmoa.thriftstore.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import zzandori.zzanmoa.thriftstore.dto.CategoryPriceDTO;
-import zzandori.zzanmoa.thriftstore.dto.StoreInfoDTO;
 import zzandori.zzanmoa.thriftstore.service.ThriftStoreService;
 
+@Tag(name = "ThriftStoreController", description = "서울시 개인서비스 요금 정보를 저장하는 컨트롤러")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/thrift")
 public class ThriftStoreController {
 
     private final ThriftStoreService thriftStoreService;
-
-
-    @GetMapping("/get/category")
-    public List<CategoryPriceDTO> getCategoryPrice(){
-        return thriftStoreService.getCategoryPrice();
-    }
-
-    @GetMapping("get/store")
-    public List<StoreInfoDTO> getStores(){
-        return thriftStoreService.getAllStoresWithItems();
-    }
 
 
     @GetMapping("/connectAPI/{startIndex}/{endIndex}")
