@@ -10,18 +10,13 @@ import org.springframework.web.bind.annotation.RestController;
 import zzandori.zzanmoa.market.dto.MarketResponseDto;
 import zzandori.zzanmoa.market.service.MarketService;
 
-@Tag(name = "MarketController", description = "시장 가격 비교를 위해 시장 정보를 가져오는 컨트롤러")
+@Tag(name = "MarketController", description = "서울시 생필품 농수축산물 가격 정보를 저장하는 컨트롤러")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/market")
 public class MarketController {
 
     private final MarketService marketService;
-
-    @GetMapping("/get")
-    public MarketResponseDto getMarkets() {
-        return marketService.getMarkets();
-    }
 
     @GetMapping("/connectAPI/{startIndex}/{endIndex}")
     public void connectOpenAPI(@PathVariable("startIndex") String startIndex,

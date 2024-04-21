@@ -17,13 +17,60 @@ import springfox.documentation.spring.web.plugins.Docket;
 public class SwaggerConfig {
     @Bean
     public Docket Market() {
-
         return new Docket(DocumentationType.OAS_30)
             .groupName("Market-api")
             .useDefaultResponseMessages(false)
             .select()
-            .apis(RequestHandlerSelectors.basePackage("zzandori.zzanmoa.swagger.controller"))
+            .apis(RequestHandlerSelectors.basePackage("zzandori.zzanmoa.market.controller"))
             .paths(PathSelectors.ant("/market/**"))
+            .build()
+            .apiInfo(apiInfo());
+    }
+
+    @Bean
+    public Docket MarketPlace() {
+        return new Docket(DocumentationType.OAS_30)
+            .groupName("MarketPlace-api")
+            .useDefaultResponseMessages(false)
+            .select()
+            .apis(RequestHandlerSelectors.basePackage("zzandori.zzanmoa.marketplace.controller"))
+            .paths(PathSelectors.ant("/marketplace/**"))
+            .build()
+            .apiInfo(apiInfo());
+    }
+
+    @Bean
+    public Docket Item() {
+        return new Docket(DocumentationType.OAS_30)
+            .groupName("Item-api")
+            .useDefaultResponseMessages(false)
+            .select()
+            .apis(RequestHandlerSelectors.basePackage("zzandori.zzanmoa.item.controller"))
+            .paths(PathSelectors.ant("/item/**"))
+            .build()
+            .apiInfo(apiInfo());
+    }
+
+    @Bean
+    public Docket ShoppingCart() {
+        return new Docket(DocumentationType.OAS_30)
+            .groupName("ShoppingCart-api")
+            .useDefaultResponseMessages(false)
+            .select()
+            .apis(RequestHandlerSelectors.basePackage("zzandori.zzanmoa.shoppingcart.controller"))
+            .paths(PathSelectors.ant("/shoppingcart/**"))
+            .build()
+            .apiInfo(apiInfo());
+    }
+
+    @Bean
+    public Docket ThriftStore() {
+        return new Docket(DocumentationType.OAS_30)
+            .groupName("ThriftStore-api")
+            .useDefaultResponseMessages(false)
+            .select()
+            .apis(RequestHandlerSelectors.basePackage("zzandori.zzanmoa.thriftstore.controller"))
+            .paths(PathSelectors.ant("/thriftstore/**"))
             .build()
             .apiInfo(apiInfo());
     }

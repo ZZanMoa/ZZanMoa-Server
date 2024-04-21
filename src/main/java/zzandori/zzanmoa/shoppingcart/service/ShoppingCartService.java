@@ -4,21 +4,24 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import zzandori.zzanmoa.grocery.entity.Grocery;
-import zzandori.zzanmoa.grocery.service.GroceryService;
+import zzandori.zzanmoa.item.entity.Item;
+import zzandori.zzanmoa.item.service.ItemService;
 import zzandori.zzanmoa.shoppingcart.dto.ShoppingCartResponseDto;
 
 @RequiredArgsConstructor
 @Service
 public class ShoppingCartService {
 
-    private final GroceryService groceryService;
+    private final ItemService itemService;
 
-    public ShoppingCartResponseDto shoppingCartAllList() {
-        List<Grocery> groceries = groceryService.getGroceries();
+    public List<ShoppingCartResponseDto> getItems() {
+        List<Item> items = itemService.getItems();
 
-        return new ShoppingCartResponseDto(groceries.stream()
-                    .map(Grocery::getItemName)
-                    .collect(Collectors.toList()));
+        return items.stream()
+            .map(item -> ShoppingCartResponseDto.builder()
+                .itemId(item.getItemId())
+                .itemName(item.getItemName())
+                .build()) // 빌더를 사용하여 DTO 객체 생성
+            .collect(Collectors.toList());
     }
 }
