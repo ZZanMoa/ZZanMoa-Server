@@ -13,19 +13,9 @@ if [ -z "$CURRENT_PID" ]
 then
   echo "> 종료할 애플리케이션이 없습니다."
 else
-  echo "> kill -15 $CURRENT_PID"
-  kill -15 $CURRENT_PID
-  # 최대 10초 동안 대기
-  TIMEOUT=10
-  while kill -0 $CURRENT_PID 2> /dev/null; do
-    sleep 1
-    let TIMEOUT-=1
-    if [ $TIMEOUT -le 0 ]; then
-      echo "프로세스 종료 시간 초과, 강제 종료합니다."
-      kill -9 $CURRENT_PID
-      break
-    fi
-  done
+  echo "> kill -9 $CURRENT_PID"
+  kill -9 $CURRENT_PID
+  sleep 5
 fi
 
 echo "> $JAR_NAME에 실행권한 추가"
