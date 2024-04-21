@@ -8,9 +8,8 @@ import zzandori.zzanmoa.savingplace.entity.SavingItem;
 
 public interface SavingItemRepository extends JpaRepository<SavingItem, Long> {
 
-    @Query("SELECT new zzandori.zzanmoa.thriftstore.dto.CategoryPriceDTO(i.category, MIN(i.price), MAX(i.price)) " +
-        "FROM SavingItem i WHERE i.price > 0 " +
-        "GROUP BY i.category")
+    @Query("SELECT new zzandori.zzanmoa.savingplace.dto.CategoryPriceDTO(i.category, MIN(i.price), MAX(i.price)) " +
+        "FROM SavingItem i GROUP BY i.category")
     List<CategoryPriceDTO> findCategoryPrices();
 
 }
