@@ -6,7 +6,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import zzandori.zzanmoa.market.dto.MarketResponseDto;
 import zzandori.zzanmoa.market.entity.Market;
 import zzandori.zzanmoa.market.repository.MarketRepository;
 import zzandori.zzanmoa.openapi.service.OpenAPIService;
