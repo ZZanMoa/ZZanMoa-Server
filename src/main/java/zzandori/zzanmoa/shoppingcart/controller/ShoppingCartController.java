@@ -19,7 +19,7 @@ public class ShoppingCartController {
     private final ShoppingCartService shoppingCartService;
 
     @RequestMapping("/list")
-    public ResponseEntity<List<ShoppingCartResponseDto>> shoppingCartAllList() {
+    public ResponseEntity<ShoppingCartResponseDto> shoppingCartAllList() {
         return ResponseEntity.ok(shoppingCartService.shoppingCartAllList());
     }
 

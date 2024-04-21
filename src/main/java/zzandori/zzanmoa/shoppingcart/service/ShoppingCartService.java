@@ -14,13 +14,11 @@ public class ShoppingCartService {
 
     private final GroceryService groceryService;
 
-    public List<ShoppingCartResponseDto> shoppingCartAllList() {
+    public ShoppingCartResponseDto shoppingCartAllList() {
         List<Grocery> groceries = groceryService.getGroceries();
 
-        return groceries.stream()
-                .map(grocery -> ShoppingCartResponseDto.builder()
-                                        .groceryName(grocery.getItemName())
-                                        .build())
-                .collect(Collectors.toList());
+        return new ShoppingCartResponseDto(groceries.stream()
+                    .map(Grocery::getItemName)
+                    .collect(Collectors.toList()));
     }
 }
