@@ -8,5 +8,4 @@ public interface ThriftStoreRepository extends JpaRepository<ThriftStore, Long> 
 
     Optional<ThriftStore> findByStoreIdAndItemId(String storeId, String itemId);
 
-
 }
