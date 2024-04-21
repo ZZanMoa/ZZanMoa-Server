@@ -1,4 +1,4 @@
-package zzandori.zzanmoa.grocery.entity;
+package zzandori.zzanmoa.item.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,7 +10,7 @@ import lombok.Getter;
 
 @Getter
 @Entity
-public class Grocery {
+public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,12 +21,12 @@ public class Grocery {
     @Column(name = "item_name")
     private String itemName;
 
-    public Grocery() {
+    public Item() {
 
     }
 
     @Builder
-    public Grocery(String itemId, String itemName) {
+    public Item(String itemId, String itemName) {
         this.itemId = itemId;
         this.itemName = itemName;
     }

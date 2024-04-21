@@ -1,23 +1,23 @@
-package zzandori.zzanmoa.grocery.controller;
+package zzandori.zzanmoa.item.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import zzandori.zzanmoa.grocery.service.GroceryService;
+import zzandori.zzanmoa.item.service.ItemService;
 
 @Tag(name = "GroceryController", description = "식료품 정보를 다루는 컨트롤러")
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("grocery")
-public class GroceryController {
+public class ItemController {
 
-    private final GroceryService shoppingCartService;
+    private final ItemService itemService;
 
     @GetMapping("/save")
     public void saveGroceries() {
-        shoppingCartService.saveGroceries();
+        itemService.saveItems();
     }
 
 }

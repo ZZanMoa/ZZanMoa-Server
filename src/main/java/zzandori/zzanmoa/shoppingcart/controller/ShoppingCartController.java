@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import zzandori.zzanmoa.shoppingcart.dto.ShoppingCartResponseDto;
@@ -18,9 +17,10 @@ public class ShoppingCartController {
 
     private final ShoppingCartService shoppingCartService;
 
-    @RequestMapping("/list")
-    public ResponseEntity<ShoppingCartResponseDto> shoppingCartAllList() {
-        return ResponseEntity.ok(shoppingCartService.shoppingCartAllList());
+    @RequestMapping("/get")
+    public ResponseEntity<List<ShoppingCartResponseDto>> getItems() {
+        List<ShoppingCartResponseDto> shoppingCartResponseDtos = shoppingCartService.getItems();
+        return ResponseEntity.ok(shoppingCartResponseDtos);
     }
 
 }
