@@ -6,7 +6,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Builder;
+import lombok.Getter;
 
+@Getter
 @Entity
 public class Grocery {
     @Id
@@ -18,6 +20,10 @@ public class Grocery {
 
     @Column(name = "item_name")
     private String itemName;
+
+    public Grocery() {
+
+    }
 
     @Builder
     public Grocery(String itemId, String itemName) {
