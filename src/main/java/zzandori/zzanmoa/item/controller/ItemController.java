@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import zzandori.zzanmoa.item.service.ItemService;
 
-@Tag(name = "GroceryController", description = "식료품 정보를 다루는 컨트롤러")
+@Tag(name = "ItemController", description = "식료품 정보를 다루는 컨트롤러")
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("grocery")
+@RequestMapping("item")
 public class ItemController {
 
     private final ItemService itemService;
