@@ -21,13 +21,17 @@ public class Item {
     @Column(name = "item_name")
     private String itemName;
 
+    @Column(name = "average_price")
+    private int averagePrice;
+
     public Item() {
 
     }
 
     @Builder
-    public Item(String itemId, String itemName) {
+    public Item(String itemId, String itemName, int averagePrice) {
         this.itemId = itemId;
         this.itemName = itemName;
+        this.averagePrice = averagePrice;
     }
 }

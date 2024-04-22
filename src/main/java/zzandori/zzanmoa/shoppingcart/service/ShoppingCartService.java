@@ -21,7 +21,7 @@ public class ShoppingCartService {
             .map(item -> ShoppingCartResponseDto.builder()
                 .itemId(item.getItemId())
                 .itemName(item.getItemName())
-                .build()) // 빌더를 사용하여 DTO 객체 생성
+                .build())
             .collect(Collectors.toList());
     }
 }

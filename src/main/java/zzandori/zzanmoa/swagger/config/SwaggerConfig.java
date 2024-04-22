@@ -52,18 +52,6 @@ public class SwaggerConfig {
     }
 
     @Bean
-    public Docket ShoppingCart() {
-        return new Docket(DocumentationType.OAS_30)
-            .groupName("ShoppingCart-api")
-            .useDefaultResponseMessages(false)
-            .select()
-            .apis(RequestHandlerSelectors.basePackage("zzandori.zzanmoa.shoppingcart.controller"))
-            .paths(PathSelectors.ant("/shoppingcart/**"))
-            .build()
-            .apiInfo(apiInfo());
-    }
-
-    @Bean
     public Docket ThriftStore() {
         return new Docket(DocumentationType.OAS_30)
             .groupName("ThriftStore-api")

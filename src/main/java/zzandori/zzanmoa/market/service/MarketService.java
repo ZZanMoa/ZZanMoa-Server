@@ -33,6 +33,14 @@ public class MarketService {
         saveMarketList(marketList);
     }
 
+    public List<Market> getMarketsByNames(List<String> marketName) {
+        return marketRepository.findMarketsByNames(marketName);
+    }
+
+    public List<Market> getMarketsByNamesAndItems(List<String> marketName, List<String> itemName) {
+        return marketRepository.findMarketsByNamesAndItems(marketName, itemName);
+    }
+
     private List<Market> processJsonToMarketList(String json) throws IOException {
         return marketDataProcessor.parseJsonToMarketList(json);
     }
