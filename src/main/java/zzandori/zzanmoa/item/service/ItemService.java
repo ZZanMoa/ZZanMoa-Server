@@ -20,39 +20,38 @@ public class ItemService {
 
     public void saveItems() {
         List<Market> markets = marketRepository.findAll();
-
-        Map<String, Item> itemMap = markets.stream()
-            .collect(Collectors.groupingBy(
-                Market::getItemId,
-                Collectors.collectingAndThen(
-                    Collectors.toList(),
-                    (List<Market> list) -> { // 명시적으로 List<Market>로 타입 지정
-                        String itemName = list.get(0).getItemName();
-                        int averagePrice = (int) Math.round(list.stream()
-                            .collect(Collectors.averagingDouble(Market::getPrice)));
-                        return Item.builder()
-                            .itemId(String.valueOf(list.get(0).getItemId()))
-                            .itemName(itemName)
-                            .averagePrice(averagePrice)
-                            .build();
-                    }
-                )
-            ));
-
-        itemMap.values().forEach(item -> itemRepository.save(item));
+        Map<String, Item> itemMap = createItemMapFromMarkets(markets);
+        itemMap.values().forEach(itemRepository::save);
     }
 
     public List<Item> getItems() {
         return itemRepository.findAll();
     }
 
-    private void saveItem(Market market) {
-        Item item = Item.builder()
-            .itemId(market.getItemId())
-            .itemName(market.getItemName())
+    private Map<String, Item> createItemMapFromMarkets(List<Market> markets) {
+        return markets.stream()
+            .collect(Collectors.groupingBy(
+                Market::getItemId,
+                Collectors.collectingAndThen(
+                    Collectors.toList(),
+                    this::createItemFromMarketList
+                )
+            ));
+    }
 
+    private Item createItemFromMarketList(List<Market> markets) {
+        String itemName = markets.get(0).getItemName();
+        int averagePrice = calculateAveragePrice(markets);
+        return Item.builder()
+            .itemId(markets.get(0).getItemId())
+            .itemName(itemName)
+            .averagePrice(averagePrice)
             .build();
-        itemRepository.save(item);
+    }
+
+    private int calculateAveragePrice(List<Market> markets) {
+        return (int) Math.round(markets.stream()
+            .collect(Collectors.averagingDouble(Market::getPrice)));
     }
 
 }
