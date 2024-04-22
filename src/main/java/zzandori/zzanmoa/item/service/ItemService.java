@@ -1,6 +1,7 @@
 package zzandori.zzanmoa.item.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -20,11 +21,25 @@ public class ItemService {
     public void saveItems() {
         List<Market> markets = marketRepository.findAll();
 
-        markets.stream()
-            .collect(Collectors.toMap(Market::getItemId, Function.identity(),
-                (existing, replacement) -> existing))
-            .values()
-            .forEach(market -> saveItem(market));
+        Map<String, Item> itemMap = markets.stream()
+            .collect(Collectors.groupingBy(
+                Market::getItemId,
+                Collectors.collectingAndThen(
+                    Collectors.toList(),
+                    (List<Market> list) -> { // 명시적으로 List<Market>로 타입 지정
+                        String itemName = list.get(0).getItemName();
+                        int averagePrice = (int) Math.round(list.stream()
+                            .collect(Collectors.averagingDouble(Market::getPrice)));
+                        return Item.builder()
+                            .itemId(String.valueOf(list.get(0).getItemId()))
+                            .itemName(itemName)
+                            .averagePrice(averagePrice)
+                            .build();
+                    }
+                )
+            ));
+
+        itemMap.values().forEach(item -> itemRepository.save(item));
     }
 
     public List<Item> getItems() {
@@ -35,6 +50,7 @@ public class ItemService {
         Item item = Item.builder()
             .itemId(market.getItemId())
             .itemName(market.getItemName())
+
             .build();
         itemRepository.save(item);
     }
