@@ -1,7 +1,6 @@
 package zzandori.zzanmoa.comparison.dto;
 
 import java.util.List;
-import java.util.Queue;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -9,10 +8,10 @@ import lombok.Getter;
 public class ComparisonResponseDto {
 
     private List<ItemDto> itemList;
-    private Queue<RankDto> rankList;
+    private List<RankDto> rankList;
 
     @Builder
-    public ComparisonResponseDto(List<ItemDto> itemList, Queue<RankDto> rankList) {
+    public ComparisonResponseDto(List<ItemDto> itemList, List<RankDto> rankList) {
         this.itemList = itemList;
         this.rankList = rankList;
     }

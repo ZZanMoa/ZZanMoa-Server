@@ -1,11 +1,10 @@
 package zzandori.zzanmoa.comparison.service;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.PriorityQueue;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import zzandori.zzanmoa.comparison.dto.ComparisonRequestDto;
@@ -28,96 +27,71 @@ public class ComparisonService {
     private final MarketService marketService;
 
     public ComparisonResponseDto comparePrice(ComparisonRequestDto request) {
+        List<ItemDto> itemDtos = getItems(request);
+        List<RankDto> rankedMarketItems = compareMarketItems(request);
         return ComparisonResponseDto.builder()
-            .itemList(getItems(request))
-            .rankList(compareMarketItems(request))
+            .itemList(itemDtos)
+            .rankList(rankedMarketItems)
             .build();
     }
 
     public List<ItemDto> getItems(ComparisonRequestDto request) {
-        List<Item> items = itemService.getItemsByItemNames(request.getItemNames());
-
-        List<ItemDto> itemDtos = new ArrayList<>();
-        for(Item item: items) {
-            itemDtos.add(ItemDto.builder()
-                    .itemId(item.getItemId())
-                    .itemName(item.getItemName())
-                    .average_price(item.getAveragePrice())
-                    .build());
-        }
-
-        return itemDtos;
+        return itemService.getItemsByItemNames(request.getItemNames()).stream()
+            .map(item -> ItemDto.builder()
+                .itemId(item.getItemId())
+                .itemName(item.getItemName())
+                .average_price(item.getAveragePrice())
+                .build())
+            .collect(Collectors.toList());
     }
 
-    public PriorityQueue<RankDto> compareMarketItems(ComparisonRequestDto request) {
+    public List<RankDto> compareMarketItems(ComparisonRequestDto request) {
+        Map<String, List<Market>> marketGroups = loadMarketData(request);
+        List<RankDto> sortedRankDtos = createAndSortRankDtos(marketGroups, request);
+        return assignRanks(sortedRankDtos);
+    }
+
+    private Map<String, List<Market>> loadMarketData(ComparisonRequestDto request) {
         List<Item> items = itemService.getItemsByItemNames(request.getItemNames());
         List<Market> markets = marketService.getMarketsByNames(request.getMarketNames());
-        Map<String, List<Market>> marketGroups = markets.stream()
+        return markets.stream()
             .collect(Collectors.groupingBy(Market::getMarketName));
+    }
 
-        // PriorityQueue를 사용하여 자동으로 정렬
-        PriorityQueue<RankDto> priorityQueue = new PriorityQueue<>(
-            Comparator.comparingInt(RankDto::getTotalSaving)
-        );
+    private List<RankDto> createAndSortRankDtos(Map<String, List<Market>> marketGroups, ComparisonRequestDto request) {
+        List<Item> items = itemService.getItemsByItemNames(request.getItemNames());
+        return marketGroups.entrySet().stream()
+            .map(entry -> buildRankDto(entry.getKey(), entry.getValue(), items))
+            .sorted(Comparator.comparingInt(RankDto::getTotalSaving))
+            .collect(Collectors.toList());
+    }
 
-        marketGroups.forEach((marketName, marketList) -> {
-            MarketPlaceDto marketDto = MarketPlaceDto.builder()
-                .marketId(marketList.stream().findAny().map(Market::getMarketId).orElse(""))
-                .marketName(marketName)
-                .build();
+    private List<RankDto> assignRanks(List<RankDto> rankDtos) {
+        return IntStream.range(0, rankDtos.size())
+            .mapToObj(index -> new RankDto(index + 1, rankDtos.get(index).getMarket(),
+                rankDtos.get(index).getSavingList(), rankDtos.get(index).getTotalSaving()))
+            .collect(Collectors.toList());
+    }
 
-            List<SavingDto> savings = items.stream()
-                .map(item -> marketList.stream()
-                    .filter(market -> market.getItemName().equals(item.getItemName()))
-                    .map(market -> createSavingDto(market, item))
-                    .findFirst()
-                    .map(List::of)
-                    .orElseGet(() -> List.of(createSavingDtoWithZeroPrice(item)))
-                )
-                .flatMap(List::stream)
-                .collect(Collectors.toList());
+    private RankDto buildRankDto(String marketName, List<Market> markets, List<Item> items) {
+        MarketPlaceDto marketDto = new MarketPlaceDto(markets.get(0).getMarketId(), marketName);
+        List<SavingDto> savings = items.stream()
+            .map(item -> createSavingDto(findMarketForItem(markets, item), item))
+            .collect(Collectors.toList());
+        int totalSaving = savings.stream().mapToInt(SavingDto::getSaving).sum();
+        return new RankDto(0, marketDto, savings, totalSaving);
+    }
 
-            int totalSaving = savings.stream()
-                .mapToInt(SavingDto::getSaving)
-                .sum();
-
-            priorityQueue.add(new RankDto(0, marketDto, savings, totalSaving));  // 순위는 나중에 할당
-        });
-
-        // 순위를 할당하기 위해 요소를 재배열
-        int rank = 1;
-        PriorityQueue<RankDto> rankedQueue = new PriorityQueue<>(Comparator.comparingInt(RankDto::getRank));
-        while (!priorityQueue.isEmpty()) {
-            RankDto current = priorityQueue.poll();
-            rankedQueue.add(new RankDto(rank++, current.getMarket(), current.getSavingList(), current.getTotalSaving()));
-        }
-
-        return rankedQueue;
+    private Market findMarketForItem(List<Market> markets, Item item) {
+        return markets.stream()
+            .filter(market -> market.getItemName().equals(item.getItemName()))
+            .findFirst()
+            .orElse(null);
     }
 
     private SavingDto createSavingDto(Market market, Item item) {
-        int saving = item.getAveragePrice() - market.getPrice();
-        return SavingDto.builder()
-            .marketItem(MarketItemDto.builder()
-                .itemId(market.getItemId())
-                .itemName(market.getItemName())
-                .price(market.getPrice())
-                .isSale(true)
-                .build())
-            .saving(saving)
-            .build();
+        int saving = (market != null) ? item.getAveragePrice() - (market != null ? market.getPrice() : 0): 0;
+        return new SavingDto(new MarketItemDto(market != null ? market.getItemId() : item.getItemId(), item.getItemName(),
+            market != null ? market.getPrice() : 0, market != null && market.getPrice() < item.getAveragePrice()), saving);
     }
-
-    private SavingDto createSavingDtoWithZeroPrice(Item item) {
-        return SavingDto.builder()
-            .marketItem(MarketItemDto.builder()
-                .itemId(item.getItemId())
-                .itemName(item.getItemName())
-                .price(item.getAveragePrice())
-                .isSale(false)
-                .build())
-            .saving(0)
-            .build();
-    }
-
 }
