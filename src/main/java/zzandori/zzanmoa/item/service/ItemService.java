@@ -28,6 +28,14 @@ public class ItemService {
         return itemRepository.findAll();
     }
 
+    public Item getItemByItemName(String itemName) {
+        return itemRepository.findByItemName(itemName).orElse(null);
+    }
+
+    public List<Item> getItemsByItemNames(List<String> itemNames) {
+        return itemRepository.findByItemNames(itemNames);
+    }
+
     private Map<String, Item> createItemMapFromMarkets(List<Market> markets) {
         return markets.stream()
             .collect(Collectors.groupingBy(
