@@ -1,10 +1,12 @@
 package zzandori.zzanmoa.bargainboard.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import zzandori.zzanmoa.bargainboard.dto.BargainResponseDTO;
 import zzandori.zzanmoa.bargainboard.service.BargainBoardService;
 import zzandori.zzanmoa.bargainboard.service.DataSettingService;
 
@@ -17,6 +19,11 @@ public class BargainBoardController {
 
     private final BargainBoardService bargainBoardService;
     private final DataSettingService dataSettingService;
+
+    @GetMapping("/total")
+    public List<BargainResponseDTO> getTotalBargainBoard(){
+        return bargainBoardService.getTotalBargainBoard();
+    }
 
 
     @GetMapping("/save/district")
