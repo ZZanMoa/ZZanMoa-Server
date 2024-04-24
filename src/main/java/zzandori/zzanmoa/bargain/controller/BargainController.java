@@ -1,5 +1,6 @@
 package zzandori.zzanmoa.bargain.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import zzandori.zzanmoa.bargain.service.BargainService;
 
+@Tag(name = "BargainController", description = "서울시 할인행사/직거래장터 정보를 저장하는 컨트롤러")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/bargain")
