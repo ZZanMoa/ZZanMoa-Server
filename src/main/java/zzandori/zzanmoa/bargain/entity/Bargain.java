@@ -49,4 +49,8 @@ public class Bargain {
 
     @Column(name = "created_at")
     private Timestamp createdAt;
+
+    public void setDistrictName(String districtName) {
+        this.districtName = districtName;
+    }
 }
