@@ -3,6 +3,7 @@ package zzandori.zzanmoa.savingplace.service;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -33,13 +34,21 @@ public class SavingPlaceService {
         return savingStoreRepository.findAllStoreWithItems().stream()
             .map(store -> new StoreInfoDTO(
                 store.getStoreId(),
-                store.getStoreName(),
+                decodeHtmlEntities(store.getStoreName()),
                 store.getPhoneNumber(),
-                store.getAddress(),
+                decodeHtmlEntities(store.getAddress()),
                 store.getItems().stream()
                     .map(item -> new ItemInfoDTO(item.getItemId(), item.getItemName(), item.getCategory(), item.getPrice()))
                     .collect(Collectors.toList())))
             .collect(Collectors.toList());
     }
 
+    private String decodeHtmlEntities(String input) {
+        String correctedInput = correctHtmlEntities(input);
+        return StringEscapeUtils.unescapeHtml4(correctedInput);
+    }
+
+    private String correctHtmlEntities(String input) {
+        return input.replaceAll("& #(\\d+)", "&#$1;");
+    }
 }
