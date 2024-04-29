@@ -64,7 +64,7 @@ public class ThriftDataProcessor {
             .category(row.get("INDUTY_DESC").asText())
             .itemId(row.get("PRDLST_CODE_SE").asText())
             .itemName(row.get("PRDLST_DESC").asText())
-            .price(Integer.parseInt((row.get("PC").asText()).replace(".", "")))
+            .price(Integer.parseInt((row.get("PC").asText()).replaceAll("\\.0$", "")))
             .phoneNumber(row.get("TLPHON_NO_CN").asText())
             .address(row.get("ADRES_CN2").asText())
             .build();
