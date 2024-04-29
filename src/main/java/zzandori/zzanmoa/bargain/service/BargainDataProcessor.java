@@ -8,6 +8,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.stereotype.Service;
 import zzandori.zzanmoa.bargain.entity.Bargain;
 import zzandori.zzanmoa.openapi.utility.JsonUtil;
@@ -31,17 +32,22 @@ public class BargainDataProcessor {
         return bargainList;
     }
 
-    private Bargain buildBargain(JsonNode row){
+    private Bargain buildBargain(JsonNode row) {
         return Bargain.builder()
             .districtId(Integer.parseInt(row.get("N_GU_CODE").asText()))
             .districtName(row.get("N_GU_NAME").asText())
             .eventId(convertToInt(row.get("N_EVENT_CODE").asText()))
             .eventName(row.get("N_EVENT_NAME").asText())
-            .title(row.get("N_TITLE").asText())
-            .content(row.get("N_CONTENTS").asText())
+            .title(decodeHtmlEntities(row.get("N_TITLE").asText()))
+            .content(decodeHtmlEntities(row.get("N_CONTENTS").asText()))
             .views(convertToInt(row.get("N_VIEW_COUNT").asText()))
             .createdAt(parseToTimestamp(row.get("REG_DATE").asText()))
             .build();
+    }
+
+
+    private String decodeHtmlEntities(String input) {
+        return StringEscapeUtils.unescapeHtml4(input);
     }
 
     private Timestamp parseToTimestamp(String dateTimeString) {

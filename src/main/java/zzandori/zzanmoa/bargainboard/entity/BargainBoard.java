@@ -1,12 +1,17 @@
-package zzandori.zzanmoa.bargain.entity;
+package zzandori.zzanmoa.bargainboard.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.sql.Timestamp;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,24 +24,18 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-@Table(name = "bargain")
-public class Bargain {
-
+@Table(name = "bargain_board")
+public class BargainBoard {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "district_id")
-    private Integer districtId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "district_id")
+    private District district;
 
-    @Column(name = "district_name")
-    private String districtName;
-
-    @Column(name = "event_id")
-    private Integer eventId;
-
-    @Column(name = "event_name")
-    private String eventName;
+    @Enumerated(EnumType.STRING)
+    private Event event;
 
     @Column(name = "title", columnDefinition = "TEXT")
     private String title;
@@ -48,9 +47,5 @@ public class Bargain {
     private Integer views;
 
     @Column(name = "created_at")
-    private Timestamp createdAt;
-
-    public void setDistrictName(String districtName) {
-        this.districtName = districtName;
-    }
+    private LocalDate createdAt;
 }

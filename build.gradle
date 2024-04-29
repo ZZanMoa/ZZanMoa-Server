@@ -47,6 +47,13 @@ repositories {
         implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.2.0'
         implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.7.0'
 
+        // 날짜 및 시간 API
+        implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.16.1'
+
+        // 디코딩
+        implementation 'org.apache.commons:commons-text:1.9'
+
+
     }
     mavenCentral()
 }

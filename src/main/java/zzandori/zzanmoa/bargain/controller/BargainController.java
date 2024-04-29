@@ -24,4 +24,9 @@ public class BargainController {
         String json = bargainService.connectOpenAPI(startIndex, endIndex);
         bargainService.processAndStoreData(json);
     }
+
+    @GetMapping("/update/district")
+    public void updateDistrict(){
+        bargainService.updateDistrictNameInBargains();
+    }
 }

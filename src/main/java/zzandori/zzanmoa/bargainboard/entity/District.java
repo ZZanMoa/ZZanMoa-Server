@@ -1,4 +1,4 @@
-package zzandori.zzanmoa.bargain.entity;
+package zzandori.zzanmoa.bargainboard.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -6,7 +6,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import java.sql.Timestamp;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,8 +18,8 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-@Table(name = "bargain")
-public class Bargain {
+@Table(name = "bargain_district")
+public class District {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,26 +30,4 @@ public class Bargain {
 
     @Column(name = "district_name")
     private String districtName;
-
-    @Column(name = "event_id")
-    private Integer eventId;
-
-    @Column(name = "event_name")
-    private String eventName;
-
-    @Column(name = "title", columnDefinition = "TEXT")
-    private String title;
-
-    @Column(name = "content", columnDefinition = "TEXT")
-    private String content;
-
-    @Column(name = "views")
-    private Integer views;
-
-    @Column(name = "created_at")
-    private Timestamp createdAt;
-
-    public void setDistrictName(String districtName) {
-        this.districtName = districtName;
-    }
 }

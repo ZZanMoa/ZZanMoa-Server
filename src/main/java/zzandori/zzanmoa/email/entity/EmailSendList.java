@@ -1,6 +1,5 @@
 package zzandori.zzanmoa.email.entity;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -14,6 +13,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import zzandori.zzanmoa.bargainboard.entity.BargainBoard;
 
 @Entity
 @Builder
@@ -28,8 +28,9 @@ public class EmailSendList extends TimeStamp{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "bargain_id")
-    private Integer bargainId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "bargain_id")
+    private BargainBoard bargain;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "email_id")

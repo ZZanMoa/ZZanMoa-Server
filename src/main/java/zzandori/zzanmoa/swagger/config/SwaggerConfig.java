@@ -87,6 +87,18 @@ public class SwaggerConfig {
             .apiInfo(apiInfo());
     }
 
+    @Bean
+    public Docket BargainBoard(){
+        return new Docket(DocumentationType.OAS_30)
+            .groupName("BargainBoard-api")
+            .useDefaultResponseMessages(false)
+            .select()
+            .apis(RequestHandlerSelectors.basePackage("zzandori.zzanmoa.bargainboard.controller"))
+            .paths(PathSelectors.ant("/bargain-board/**"))
+            .build()
+            .apiInfo(apiInfo());
+    }
+
 
 
     private ApiInfo apiInfo() {

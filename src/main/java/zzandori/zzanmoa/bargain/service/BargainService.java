@@ -1,10 +1,13 @@
 package zzandori.zzanmoa.bargain.service;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import zzandori.zzanmoa.bargain.entity.Bargain;
+import zzandori.zzanmoa.bargain.entity.District;
 import zzandori.zzanmoa.bargain.respository.BargainRepository;
 import zzandori.zzanmoa.openapi.service.OpenAPIService;
 
@@ -36,6 +39,19 @@ public class BargainService {
     private void saveBargainList(List<Bargain> bargainList){
         if(!bargainList.isEmpty()){
             bargainRepository.saveAll(bargainList);
+        }
+    }
+
+    public void updateDistrictNameInBargains() {
+        List<Bargain> bargains = bargainRepository.findAll();
+        for (Bargain bargain : bargains) {
+            Optional<District> matchingDistrict = Arrays.stream(District.values())
+                .filter(d -> d.getDistrictId() == bargain.getDistrictId())
+                .findFirst();
+            if (matchingDistrict.isPresent()) {
+                bargain.setDistrictName(matchingDistrict.get().getDistrictName());
+                bargainRepository.save(bargain);
+            }
         }
     }
 }
