@@ -22,6 +22,18 @@ import zzandori.zzanmoa.bargainboard.repository.DistrictRepository;
 public class BargainBoardService {
 
     private final BargainBoardRepository bargainBoardRepository;
+    private final DistrictRepository districtRepository;
+
+    public List<DistrictResponseDTO> getDistrict(){
+        List<District> districtList = districtRepository.findAll();
+        List<DistrictResponseDTO> responseDistrict = new ArrayList<>();
+
+        for(int i = 0; i < districtList.size(); i++){
+            responseDistrict.add(mapToDistrictResponseDTO(districtList.get(i)));
+        }
+
+        return responseDistrict;
+    }
 
 
     public PaginatedResponseDTO<BargainResponseDTO> getBargainBoard(String id, int page) {

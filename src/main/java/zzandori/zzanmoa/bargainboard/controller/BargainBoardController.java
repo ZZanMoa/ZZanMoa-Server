@@ -28,6 +28,10 @@ public class BargainBoardController {
         return bargainBoardService.getBargainBoard(id, page);
     }
 
+    @GetMapping("/get/district")
+    public List<DistrictResponseDTO> getDistrict(){
+        return bargainBoardService.getDistrict();
+    }
 
     @GetMapping("/save/district")
     public void setBargainDistrict(){
