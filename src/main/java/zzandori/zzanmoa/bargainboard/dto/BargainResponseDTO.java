@@ -14,8 +14,10 @@ import lombok.ToString;
 public class BargainResponseDTO {
 
     private Integer id;
-    private String districtName;
+    private Integer eventId;
+    private Integer districtId;
     private String title;
+    private String content;
     @JsonFormat
     private LocalDate createdAt;
 }

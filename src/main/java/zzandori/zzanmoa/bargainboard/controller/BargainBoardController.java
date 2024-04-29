@@ -5,8 +5,11 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import zzandori.zzanmoa.bargainboard.dto.BargainResponseDTO;
+import zzandori.zzanmoa.bargainboard.dto.DistrictResponseDTO;
+import zzandori.zzanmoa.bargainboard.dto.PaginatedResponseDTO;
 import zzandori.zzanmoa.bargainboard.service.BargainBoardService;
 import zzandori.zzanmoa.bargainboard.service.DataSettingService;
 
@@ -20,9 +23,9 @@ public class BargainBoardController {
     private final BargainBoardService bargainBoardService;
     private final DataSettingService dataSettingService;
 
-    @GetMapping("/total")
-    public List<BargainResponseDTO> getTotalBargainBoard(){
-        return bargainBoardService.getTotalBargainBoard();
+    @GetMapping("/")
+    public PaginatedResponseDTO<BargainResponseDTO> getBargainBoard(@RequestParam(required = false) String id, @RequestParam(defaultValue = "0") int page) {
+        return bargainBoardService.getBargainBoard(id, page);
     }
 
 
