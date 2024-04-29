@@ -1,6 +1,7 @@
 package zzandori.zzanmoa.bargainboard.service;
 
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -37,8 +38,9 @@ public class BargainBoardService {
 
 
     public PaginatedResponseDTO<BargainResponseDTO> getBargainBoard(String id, int page) {
-        Pageable pageable = PageRequest.of(page, 9); // Fixed page size of 9
+        Pageable pageable = PageRequest.of(page, 9);
         Page<BargainBoard> bargainBoards;
+        LocalDate oneWeekAgo = LocalDate.now().minusWeeks(1);  // LocalDateTime 대신 LocalDate 사용
 
         if (id == null) {
             bargainBoards = bargainBoardRepository.findAll(pageable);
@@ -52,8 +54,10 @@ public class BargainBoardService {
             bargainBoards = bargainBoardRepository.findByEvent(event, pageable);
         }
 
+        int recentNewsCount = bargainBoardRepository.countRecentNews(oneWeekAgo);
+
         Page<BargainResponseDTO> responsePage = bargainBoards.map(this::mapToBargainResponseDTO);
-        return new PaginatedResponseDTO<>(responsePage);
+        return new PaginatedResponseDTO<>(responsePage, recentNewsCount);
     }
 
 
