@@ -5,6 +5,7 @@ import zzandori.zzanmoa.bargainboard.entity.District;
 
 public interface DistrictRepository extends JpaRepository<District, Long> {
     District findByDistrictId(Integer districtId);
+    District findByDistrictName(String districtName);
 
     boolean existsByDistrictId(Integer districtId);
 

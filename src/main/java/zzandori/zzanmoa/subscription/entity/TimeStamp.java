@@ -1,4 +1,4 @@
-package zzandori.zzanmoa.email.entity;
+package zzandori.zzanmoa.subscription.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
