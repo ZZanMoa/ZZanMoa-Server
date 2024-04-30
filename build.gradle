@@ -50,6 +50,10 @@ repositories {
         // 날짜 및 시간 API
         implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.16.1'
 
+        // email
+        implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+
         // 디코딩
         implementation 'org.apache.commons:commons-text:1.9'
 
