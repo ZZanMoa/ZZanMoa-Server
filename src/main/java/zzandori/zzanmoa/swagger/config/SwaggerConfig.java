@@ -95,6 +95,18 @@ public class SwaggerConfig {
             .apiInfo(apiInfo());
     }
 
+    @Bean
+    public Docket Subscription(){
+        return new Docket(DocumentationType.OAS_30)
+            .groupName("Subscription-api")
+            .useDefaultResponseMessages(false)
+            .select()
+            .apis(RequestHandlerSelectors.basePackage("zzandori.zzanmoa.subscription.controller"))
+            .paths(PathSelectors.ant("/subscription/**"))
+            .build()
+            .apiInfo(apiInfo());
+    }
+
 
 
     private ApiInfo apiInfo() {
