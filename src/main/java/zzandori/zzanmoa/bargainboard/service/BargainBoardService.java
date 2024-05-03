@@ -25,30 +25,35 @@ public class BargainBoardService {
     private final BargainBoardRepository bargainBoardRepository;
     private final DistrictRepository districtRepository;
 
-    public List<DistrictResponseDTO> getDistrict(){
+    public List<DistrictResponseDTO> getDistrict() {
         List<District> districtList = districtRepository.findAll();
         return mapDistrictsToDTOs(districtList);
     }
 
-    public PaginatedResponseDTO<BargainResponseDTO> getBargainBoard(String id, int page) {
-        Page<BargainBoard> bargainBoards = fetchBargainBoards(id, page);
+    public PaginatedResponseDTO<BargainResponseDTO> getBargainBoard(String eventId, Integer districtId,
+        int page) {
+        Page<BargainBoard> bargainBoards = fetchBargainBoards(eventId, districtId, page);
         int recentNewsCount = getRecentNewsCount();
         return buildPaginatedResponse(bargainBoards, recentNewsCount);
     }
 
 
-    private Page<BargainBoard> fetchBargainBoards(String id, int page) {
+    private Page<BargainBoard> fetchBargainBoards(String eventId, Integer districtId, int page) {
         Pageable pageable = PageRequest.of(page, 9);
-        if (id == null) {
+        if (eventId == null && districtId == null) {
             return bargainBoardRepository.findAll(pageable);
-        } else {
-            Event event = mapIdToEvent(id);
+        } else if (eventId == null && districtId != null) {
+            return bargainBoardRepository.findByDistrictId(districtId, pageable);
+        } else if (eventId != null && districtId == null) {
+            Event event = mapEventIdToEvent(eventId);
             return bargainBoardRepository.findByEvent(event, pageable);
+        } else {
+            Event event = mapEventIdToEvent(eventId);
+            return bargainBoardRepository.findByEventAndDistrictId(event, districtId, pageable);
         }
     }
 
-    private Event mapIdToEvent(String id) {
-        System.out.println(id);
+    private Event mapEventIdToEvent(String id) {
         if ("1".equals(id)) {
             return Event.DISCOUNT_SALE;
         } else if ("2".equals(id)) {
@@ -70,7 +75,8 @@ public class BargainBoardService {
             .collect(Collectors.toList());
     }
 
-    private PaginatedResponseDTO<BargainResponseDTO> buildPaginatedResponse(Page<BargainBoard> page, int recentNewsCount) {
+    private PaginatedResponseDTO<BargainResponseDTO> buildPaginatedResponse(Page<BargainBoard> page,
+        int recentNewsCount) {
         Page<BargainResponseDTO> responsePage = page.map(this::mapToBargainResponseDTO);
         return new PaginatedResponseDTO<>(responsePage, recentNewsCount);
     }

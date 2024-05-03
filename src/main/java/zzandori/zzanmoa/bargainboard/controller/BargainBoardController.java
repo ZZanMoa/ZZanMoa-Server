@@ -24,8 +24,8 @@ public class BargainBoardController {
     private final DataSettingService dataSettingService;
 
     @GetMapping("/")
-    public PaginatedResponseDTO<BargainResponseDTO> getBargainBoard(@RequestParam(required = false) String id, @RequestParam(defaultValue = "0") int page) {
-        return bargainBoardService.getBargainBoard(id, page);
+    public PaginatedResponseDTO<BargainResponseDTO> getBargainBoard(@RequestParam(required = false) String eventId, @RequestParam(required = false) Integer districtId, @RequestParam(defaultValue = "0") int page) {
+        return bargainBoardService.getBargainBoard(eventId, districtId, page);
     }
 
     @GetMapping("/get/district")
