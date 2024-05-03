@@ -48,6 +48,7 @@ public class BargainBoardService {
     }
 
     private Event mapIdToEvent(String id) {
+        System.out.println(id);
         if ("1".equals(id)) {
             return Event.DISCOUNT_SALE;
         } else if ("2".equals(id)) {
@@ -85,10 +86,15 @@ public class BargainBoardService {
         return BargainResponseDTO.builder()
             .id(bargainBoard.getId())
             .eventId(bargainBoard.getEvent().getId())
-            .districtId(bargainBoard.getDistrict().getId())
+            .districtId(toDistrictIdFormat(bargainBoard))
             .title(bargainBoard.getTitle())
             .content(bargainBoard.getContent())
             .createdAt(bargainBoard.getCreatedAt())
             .build();
     }
+
+    private Integer toDistrictIdFormat(BargainBoard bargainBoard) {
+        return bargainBoard.getDistrict() == null ? null : bargainBoard.getDistrict().getId();
+    }
+
 }
