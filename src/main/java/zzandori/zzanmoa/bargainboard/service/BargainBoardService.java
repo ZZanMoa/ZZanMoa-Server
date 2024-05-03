@@ -40,15 +40,15 @@ public class BargainBoardService {
 
     private Page<BargainBoard> fetchBargainBoards(String eventId, Integer districtId, int page) {
         Pageable pageable = PageRequest.of(page, 9);
-        if (eventId == null && districtId == null) {
+
+        Event event = (eventId != null) ? mapEventIdToEvent(eventId) : null;
+        if (event == null && districtId == null) {
             return bargainBoardRepository.findAll(pageable);
-        } else if (eventId == null && districtId != null) {
+        } else if (event == null) {
             return bargainBoardRepository.findByDistrictId(districtId, pageable);
-        } else if (eventId != null && districtId == null) {
-            Event event = mapEventIdToEvent(eventId);
+        } else if (districtId == null) {
             return bargainBoardRepository.findByEvent(event, pageable);
         } else {
-            Event event = mapEventIdToEvent(eventId);
             return bargainBoardRepository.findByEventAndDistrictId(event, districtId, pageable);
         }
     }
