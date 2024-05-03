@@ -25,33 +25,41 @@ public class BargainBoardService {
     private final BargainBoardRepository bargainBoardRepository;
     private final DistrictRepository districtRepository;
 
-    public List<DistrictResponseDTO> getDistrict(){
+    public List<DistrictResponseDTO> getDistrict() {
         List<District> districtList = districtRepository.findAll();
         return mapDistrictsToDTOs(districtList);
     }
 
-    public PaginatedResponseDTO<BargainResponseDTO> getBargainBoard(String id, int page) {
-        Page<BargainBoard> bargainBoards = fetchBargainBoards(id, page);
+    public PaginatedResponseDTO<BargainResponseDTO> getBargainBoard(String eventId, Integer districtId,
+        int page) {
+        Page<BargainBoard> bargainBoards = fetchBargainBoards(eventId, districtId, page);
         int recentNewsCount = getRecentNewsCount();
         return buildPaginatedResponse(bargainBoards, recentNewsCount);
     }
 
 
-    private Page<BargainBoard> fetchBargainBoards(String id, int page) {
+    private Page<BargainBoard> fetchBargainBoards(String eventId, Integer districtId, int page) {
         Pageable pageable = PageRequest.of(page, 9);
-        if (id == null) {
+
+        Event event = (eventId != null) ? mapEventIdToEvent(eventId) : null;
+        if (event == null && districtId == null) {
             return bargainBoardRepository.findAll(pageable);
-        } else {
-            Event event = mapIdToEvent(id);
+        } else if (event == null) {
+            return bargainBoardRepository.findByDistrictId(districtId, pageable);
+        } else if (districtId == null) {
             return bargainBoardRepository.findByEvent(event, pageable);
+        } else {
+            return bargainBoardRepository.findByEventAndDistrictId(event, districtId, pageable);
         }
     }
 
-    private Event mapIdToEvent(String id) {
+    private Event mapEventIdToEvent(String id) {
         if ("1".equals(id)) {
             return Event.DISCOUNT_SALE;
         } else if ("2".equals(id)) {
             return Event.DIRECT_TRADE;
+        } else if ("3".equals(id)) {
+            return Event.LIVING_COST;
         }
         return null;
     }
@@ -67,7 +75,8 @@ public class BargainBoardService {
             .collect(Collectors.toList());
     }
 
-    private PaginatedResponseDTO<BargainResponseDTO> buildPaginatedResponse(Page<BargainBoard> page, int recentNewsCount) {
+    private PaginatedResponseDTO<BargainResponseDTO> buildPaginatedResponse(Page<BargainBoard> page,
+        int recentNewsCount) {
         Page<BargainResponseDTO> responsePage = page.map(this::mapToBargainResponseDTO);
         return new PaginatedResponseDTO<>(responsePage, recentNewsCount);
     }
@@ -83,10 +92,15 @@ public class BargainBoardService {
         return BargainResponseDTO.builder()
             .id(bargainBoard.getId())
             .eventId(bargainBoard.getEvent().getId())
-            .districtId(bargainBoard.getDistrict().getId())
+            .districtId(toDistrictIdFormat(bargainBoard))
             .title(bargainBoard.getTitle())
             .content(bargainBoard.getContent())
             .createdAt(bargainBoard.getCreatedAt())
             .build();
     }
+
+    private Integer toDistrictIdFormat(BargainBoard bargainBoard) {
+        return bargainBoard.getDistrict() == null ? null : bargainBoard.getDistrict().getId();
+    }
+
 }
