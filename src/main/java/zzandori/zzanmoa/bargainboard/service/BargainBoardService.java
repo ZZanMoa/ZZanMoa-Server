@@ -52,6 +52,8 @@ public class BargainBoardService {
             return Event.DISCOUNT_SALE;
         } else if ("2".equals(id)) {
             return Event.DIRECT_TRADE;
+        } else if ("3".equals(id)) {
+            return Event.LIVING_COST;
         }
         return null;
     }

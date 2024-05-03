@@ -39,8 +39,13 @@ public class BargainBoardController {
     }
 
     @GetMapping("/save/bargain")
-    public void setBargainBoard(){
-        dataSettingService.saveBargainBoardData();
+    public void setBargain(){
+        dataSettingService.saveBargainData();
+    }
+
+    @GetMapping("/save/living-cost")
+    public void setLivingCost(){
+        dataSettingService.saveLivingCostData();
     }
 
 

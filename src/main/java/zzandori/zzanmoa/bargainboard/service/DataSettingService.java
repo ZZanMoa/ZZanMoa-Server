@@ -12,15 +12,37 @@ import zzandori.zzanmoa.bargainboard.entity.District;
 import zzandori.zzanmoa.bargainboard.entity.Event;
 import zzandori.zzanmoa.bargainboard.repository.BargainBoardRepository;
 import zzandori.zzanmoa.bargainboard.repository.DistrictRepository;
+import zzandori.zzanmoa.livingcost.entity.LivingCost;
+import zzandori.zzanmoa.livingcost.repository.LivingCostRepository;
 
 @RequiredArgsConstructor
 @Service
 public class DataSettingService {
     private final BargainRepository bargainRepository;
     private final BargainBoardRepository bargainBoardRepository;
+    private final LivingCostRepository livingCostRepository;
     private final DistrictRepository districtRepository;
 
-    public void saveBargainBoardData() {
+    public void saveBargainDistrictData(){
+        List<Bargain> bargains = bargainRepository.findAll();
+        Set<Integer> processedDistrictIds = new HashSet<>();
+
+        for (Bargain bargain : bargains) {
+            if (!processedDistrictIds.contains(bargain.getDistrictId()) &&
+                !districtRepository.existsByDistrictId(bargain.getDistrictId())) {
+
+                District district = District.builder()
+                    .districtId(bargain.getDistrictId())
+                    .districtName(bargain.getDistrictName())
+                    .build();
+
+                districtRepository.save(district);
+                processedDistrictIds.add(bargain.getDistrictId());
+            }
+        }
+    }
+
+    public void saveBargainData() {
         List<Bargain> bargains = bargainRepository.findAll();
 
         for (Bargain bargain : bargains) {
@@ -40,23 +62,21 @@ public class DataSettingService {
         }
     }
 
+    public void saveLivingCostData() {
+        List<LivingCost> livingCosts = livingCostRepository.findAll();
 
-    public void saveBargainDistrictData(){
-        List<Bargain> bargains = bargainRepository.findAll();
-        Set<Integer> processedDistrictIds = new HashSet<>();
+        for (LivingCost livingCost : livingCosts) {
 
-        for (Bargain bargain : bargains) {
-            if (!processedDistrictIds.contains(bargain.getDistrictId()) &&
-                !districtRepository.existsByDistrictId(bargain.getDistrictId())) {
+            BargainBoard bargainBoard = BargainBoard.builder()
+                .district(null)
+                .event(Event.LIVING_COST)
+                .title(livingCost.getTitle())
+                .content(livingCost.getContent())
+                .views(livingCost.getViews())
+                .createdAt(livingCost.getCreatedAt().toLocalDateTime().toLocalDate())
+                .build();
 
-                District district = District.builder()
-                    .districtId(bargain.getDistrictId())
-                    .districtName(bargain.getDistrictName())
-                    .build();
-
-                districtRepository.save(district);
-                processedDistrictIds.add(bargain.getDistrictId());
-            }
+            bargainBoardRepository.save(bargainBoard);
         }
     }
 

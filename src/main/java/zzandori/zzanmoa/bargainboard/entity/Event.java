@@ -2,7 +2,8 @@ package zzandori.zzanmoa.bargainboard.entity;
 
 public enum Event {
     DISCOUNT_SALE(1, "할인행사"),
-    DIRECT_TRADE(2, "직거래 마켓");
+    DIRECT_TRADE(2, "직거래 마켓"),
+    LIVING_COST(3, "물가 정보");
 
     private final int id;
     private final String description;
