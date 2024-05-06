@@ -27,9 +27,15 @@ public class BargainBoardController {
 
     @GetMapping("/")
     public ResponseEntity<?> getBargainBoard(@RequestParam(required = false) Integer eventId, @RequestParam(required = false) Integer districtId, @RequestParam(required = false) String keyword, @RequestParam(defaultValue = "0") int page) {
-
-        PaginatedResponseDTO<BargainResponseDTO> response = bargainBoardService.getBargainBoard(eventId, districtId, page, keyword);
-        return ResponseEntity.ok(response);
+        if (eventId == null) {
+            return ResponseEntity.badRequest().body(new EventNullErrorDTO("이벤트 ID는 필수입니다."));
+        }
+        try {
+            PaginatedResponseDTO<BargainResponseDTO> response = bargainBoardService.getBargainBoard(eventId, districtId, page, keyword);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(new EventNullErrorDTO("할인 게시판 검색 중 오류 발생: " + e.getMessage()));
+        }
     }
 
     @GetMapping("/get/district")
