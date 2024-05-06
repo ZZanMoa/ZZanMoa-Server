@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import zzandori.zzanmoa.bargainboard.dto.BargainResponseDTO;
 import zzandori.zzanmoa.bargainboard.dto.DistrictResponseDTO;
-import zzandori.zzanmoa.bargainboard.dto.EventNullErrorDTO;
+import zzandori.zzanmoa.bargainboard.dto.StatusResponseDTO;
 import zzandori.zzanmoa.bargainboard.dto.PaginatedResponseDTO;
 import zzandori.zzanmoa.bargainboard.service.BargainBoardService;
 import zzandori.zzanmoa.bargainboard.service.DataSettingService;
@@ -28,15 +28,19 @@ public class BargainBoardController {
     @GetMapping("/")
     public ResponseEntity<?> getBargainBoard(@RequestParam(required = false) Integer eventId, @RequestParam(required = false) Integer districtId, @RequestParam(required = false) String keyword, @RequestParam(defaultValue = "0") int page) {
         if (eventId == null) {
-            return ResponseEntity.badRequest().body(new EventNullErrorDTO("이벤트 ID는 필수입니다."));
+            return ResponseEntity.badRequest().body(new StatusResponseDTO("이벤트 ID는 필수입니다."));
         }
         try {
             PaginatedResponseDTO<BargainResponseDTO> response = bargainBoardService.getBargainBoard(eventId, districtId, page, keyword);
+            if (response.getContent().isEmpty()) {
+                return ResponseEntity.ok(new StatusResponseDTO("조회된 게시글이 없습니다."));
+            }
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(new EventNullErrorDTO("할인 게시판 검색 중 오류 발생: " + e.getMessage()));
+            return ResponseEntity.internalServerError().body(new StatusResponseDTO("할인 게시판 검색 중 오류 발생: " + e.getMessage()));
         }
     }
+
 
     @GetMapping("/get/district")
     public List<DistrictResponseDTO> getDistrict(){

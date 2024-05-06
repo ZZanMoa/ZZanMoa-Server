@@ -11,6 +11,6 @@ import lombok.ToString;
 @Getter
 @Builder
 @ToString
-public class EventNullErrorDTO {
-    private String error;
+public class StatusResponseDTO {
+    private String status;
 }
