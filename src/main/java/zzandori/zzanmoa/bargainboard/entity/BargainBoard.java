@@ -2,8 +2,6 @@ package zzandori.zzanmoa.bargainboard.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -34,7 +32,8 @@ public class BargainBoard {
     @JoinColumn(name = "district_id")
     private District district;
 
-    @Enumerated(EnumType.STRING)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "event_id")
     private Event event;
 
     @Column(name = "title", columnDefinition = "TEXT")

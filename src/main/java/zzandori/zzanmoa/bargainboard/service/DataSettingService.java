@@ -12,6 +12,7 @@ import zzandori.zzanmoa.bargainboard.entity.District;
 import zzandori.zzanmoa.bargainboard.entity.Event;
 import zzandori.zzanmoa.bargainboard.repository.BargainBoardRepository;
 import zzandori.zzanmoa.bargainboard.repository.DistrictRepository;
+import zzandori.zzanmoa.bargainboard.repository.EventRepository;
 import zzandori.zzanmoa.livingcost.entity.LivingCost;
 import zzandori.zzanmoa.livingcost.repository.LivingCostRepository;
 
@@ -22,6 +23,7 @@ public class DataSettingService {
     private final BargainBoardRepository bargainBoardRepository;
     private final LivingCostRepository livingCostRepository;
     private final DistrictRepository districtRepository;
+    private final EventRepository eventRepository;
 
     public void saveBargainDistrictData(){
         List<Bargain> bargains = bargainRepository.findAll();
@@ -47,7 +49,7 @@ public class DataSettingService {
 
         for (Bargain bargain : bargains) {
             District district = districtRepository.findByDistrictId(bargain.getDistrictId());
-            Event event = Event.getById(bargain.getEventId());
+            Event event = eventRepository.findByEventId(bargain.getEventId());
 
             BargainBoard bargainBoard = BargainBoard.builder()
                 .district(district)
@@ -69,7 +71,10 @@ public class DataSettingService {
 
             BargainBoard bargainBoard = BargainBoard.builder()
                 .district(null)
-                .event(Event.LIVING_COST)
+                .event(Event.builder()
+                    .eventId(3)
+                    .eventName("물가 정보")
+                    .build())
                 .title(livingCost.getTitle())
                 .content(livingCost.getContent())
                 .views(livingCost.getViews())

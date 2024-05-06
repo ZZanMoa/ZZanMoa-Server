@@ -1,33 +1,33 @@
 package zzandori.zzanmoa.bargainboard.entity;
 
-public enum Event {
-    DISCOUNT_SALE(1, "할인행사"),
-    DIRECT_TRADE(2, "직거래 마켓"),
-    LIVING_COST(3, "물가 정보");
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
-    private final int id;
-    private final String description;
+@Entity
+@Builder
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
+@Table(name = "event")
+public class Event {
 
-    Event(int id, String description) {
-        this.id = id;
-        this.description = description;
-    }
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
-    public int getId() {
-        return id;
-    }
+    @Column(name = "event_id")
+    private Integer eventId;
 
-    public String getDescription() {
-        return description;
-    }
-
-    public static Event getById(int id) {
-        for (Event event : values()) {
-            if (event.getId() == id) {
-                return event;
-            }
-        }
-        throw new IllegalArgumentException("No matching event for id: " + id);
-    }
+    @Column(name = "event_name")
+    private String eventName;
 }
-

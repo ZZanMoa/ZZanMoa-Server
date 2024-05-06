@@ -8,13 +8,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import zzandori.zzanmoa.bargainboard.dto.BargainResponseDTO;
 import zzandori.zzanmoa.bargainboard.dto.DistrictResponseDTO;
 import zzandori.zzanmoa.bargainboard.dto.PaginatedResponseDTO;
 import zzandori.zzanmoa.bargainboard.entity.BargainBoard;
 import zzandori.zzanmoa.bargainboard.entity.District;
-import zzandori.zzanmoa.bargainboard.entity.Event;
 import zzandori.zzanmoa.bargainboard.repository.BargainBoardRepository;
 import zzandori.zzanmoa.bargainboard.repository.DistrictRepository;
 
@@ -30,39 +30,41 @@ public class BargainBoardService {
         return mapDistrictsToDTOs(districtList);
     }
 
-    public PaginatedResponseDTO<BargainResponseDTO> getBargainBoard(String eventId, Integer districtId,
-        int page) {
-        Page<BargainBoard> bargainBoards = fetchBargainBoards(eventId, districtId, page);
+    public PaginatedResponseDTO<BargainResponseDTO> getBargainBoard(Integer eventId, Integer districtId, int page, String keyword) {
+        Page<BargainBoard> bargainBoards;
+
+        if(keyword != null && !keyword.isEmpty()){
+            bargainBoards = searchBargainBoards(eventId, districtId, page, keyword);
+        }
+        else{
+            bargainBoards = fetchBargainBoards(eventId, districtId, page);
+        }
+
         int recentNewsCount = getRecentNewsCount();
         return buildPaginatedResponse(bargainBoards, recentNewsCount);
     }
 
+    private Page<BargainBoard> searchBargainBoards(Integer eventId, Integer districtId, int page, String keyword){
+        Pageable pageable = PageRequest.of(page, 9, Sort.by("createdAt").descending());
 
-    private Page<BargainBoard> fetchBargainBoards(String eventId, Integer districtId, int page) {
-        Pageable pageable = PageRequest.of(page, 9);
-
-        Event event = (eventId != null) ? mapEventIdToEvent(eventId) : null;
-        if (event == null && districtId == null) {
-            return bargainBoardRepository.findAll(pageable);
-        } else if (event == null) {
-            return bargainBoardRepository.findByDistrictId(districtId, pageable);
-        } else if (districtId == null) {
-            return bargainBoardRepository.findByEvent(event, pageable);
+        if (eventId == 3) {
+            return bargainBoardRepository.findByEventIdAndDistrictIdAndKeyword(eventId, null, keyword, pageable);
         } else {
-            return bargainBoardRepository.findByEventAndDistrictId(event, districtId, pageable);
+            return bargainBoardRepository.findByEventIdAndDistrictIdAndKeyword(eventId, districtId, keyword,pageable);
         }
     }
 
-    private Event mapEventIdToEvent(String id) {
-        if ("1".equals(id)) {
-            return Event.DISCOUNT_SALE;
-        } else if ("2".equals(id)) {
-            return Event.DIRECT_TRADE;
-        } else if ("3".equals(id)) {
-            return Event.LIVING_COST;
+
+    private Page<BargainBoard> fetchBargainBoards(Integer eventId, Integer districtId, int page) {
+        Pageable pageable = PageRequest.of(page, 9, Sort.by("createdAt").descending());
+
+        if (eventId == 3 || districtId == null) {
+            return bargainBoardRepository.findByEventId(eventId, pageable);
+        } else {
+            return bargainBoardRepository.findByEventIdAndDistrictId(eventId, districtId, pageable);
         }
-        return null;
     }
+
 
     private int getRecentNewsCount() {
         LocalDate oneWeekAgo = LocalDate.now().minusWeeks(1);
