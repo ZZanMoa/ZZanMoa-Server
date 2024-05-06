@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import zzandori.zzanmoa.bargainboard.dto.BargainResponseDTO;
 import zzandori.zzanmoa.bargainboard.dto.DistrictResponseDTO;
@@ -44,7 +45,7 @@ public class BargainBoardService {
     }
 
     private Page<BargainBoard> searchBargainBoards(Integer eventId, Integer districtId, int page, String keyword){
-        Pageable pageable = PageRequest.of(page, 9);
+        Pageable pageable = PageRequest.of(page, 9, Sort.by("createdAt").descending());
 
         if (eventId == 3) {
             return bargainBoardRepository.findByEventIdAndDistrictIdAndKeyword(eventId, null, keyword, pageable);
@@ -55,7 +56,7 @@ public class BargainBoardService {
 
 
     private Page<BargainBoard> fetchBargainBoards(Integer eventId, Integer districtId, int page) {
-        Pageable pageable = PageRequest.of(page, 9);
+        Pageable pageable = PageRequest.of(page, 9, Sort.by("createdAt").descending());
 
         if (eventId == 3 || districtId == null) {
             return bargainBoardRepository.findByEventId(eventId, pageable);
