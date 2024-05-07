@@ -7,13 +7,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import zzandori.zzanmoa.latlng.dto.LatLngResponse;
+import zzandori.zzanmoa.latlng.dto.LatLngDistrictDto;
+import zzandori.zzanmoa.latlng.dto.LatLngSubDistrictDto;
 import zzandori.zzanmoa.latlng.entity.LatLngDistrict;
 import zzandori.zzanmoa.latlng.entity.LatLngSubDistrict;
 import zzandori.zzanmoa.latlng.repository.LatLngDistrictRepository;
@@ -26,8 +28,27 @@ public class LatLngService {
     private final LatLngDistrictRepository latLngDistrictRepository;
     private final LatLngSubDistrictRepository latLngSubDistrictRepository;
 
-    public LatLngResponse getLatitudeAndLongitude() {
-        return null;
+    public List<LatLngDistrictDto> getLatitudeAndLongitude() {
+        return latLngDistrictRepository.findAll().stream()
+            .map(this::convertToDTO)
+            .collect(Collectors.toList());
+    }
+
+    private LatLngDistrictDto convertToDTO(LatLngDistrict district) {
+        return LatLngDistrictDto.builder()
+            .district(district.getDistrict())
+            .subDistricts(district.getSubDistricts().stream()
+                .map(this::convertSubDistrictToDTO)
+                .collect(Collectors.toList()))
+            .build();
+    }
+
+    private LatLngSubDistrictDto convertSubDistrictToDTO(LatLngSubDistrict subDistrict) {
+        return LatLngSubDistrictDto.builder()
+            .dong(subDistrict.getDong())
+            .latitude(subDistrict.getLatitude())
+            .longitude(subDistrict.getLongitude())
+            .build();
     }
 
     @Transactional

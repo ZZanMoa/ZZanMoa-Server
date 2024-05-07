@@ -1,10 +1,11 @@
 package zzandori.zzanmoa.latlng.controller;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import zzandori.zzanmoa.latlng.dto.LatLngResponse;
+import zzandori.zzanmoa.latlng.dto.LatLngDistrictDto;
 import zzandori.zzanmoa.latlng.service.LatLngService;
 
 @RestController
@@ -20,7 +21,7 @@ public class LatLngController {
     }
 
     @GetMapping("/get")
-    public LatLngResponse getLatitudeAndLongitude() {
+    public List<LatLngDistrictDto> getLatitudeAndLongitude() {
         return latLngService.getLatitudeAndLongitude();
     }
 
