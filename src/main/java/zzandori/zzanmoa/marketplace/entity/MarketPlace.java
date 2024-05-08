@@ -6,13 +6,15 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Table(name = "market_place")
 @Getter
 @Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MarketPlace {
 
     @Id
@@ -25,13 +27,17 @@ public class MarketPlace {
     @Column(name = "market_name")
     private String marketName;
 
-    public MarketPlace() {
+    @Column(name = "latitude")
+    private Double latitude;
 
-    }
+    @Column(name = "longitude")
+    private Double longitude;
 
     @Builder
-    public MarketPlace(String marketId, String marketName) {
+    public MarketPlace(String marketId, String marketName, Double latitude, Double longitude) {
         this.marketId = marketId;
         this.marketName = marketName;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 }
