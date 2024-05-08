@@ -39,47 +39,9 @@ public class SavingPlaceService {
         List<ThriftStore> thriftStores = thriftStoreRepository.findAll();
         Map<String, SavingStore> storeMap = new HashMap<>();
 
-        for (ThriftStore thriftStore : thriftStores) {
-            if (thriftStore.getAddress().equals("")) {
-                continue;
-            }
+        thriftStores.forEach(thriftStore -> processThriftStore(thriftStore, storeMap));
 
-            if (!storeMap.containsKey(thriftStore.getStoreId())) {
-                System.out.println(thriftStore.getStoreName());
-                Location location = googleMapApiService.request(thriftStore.getAddress());
-                System.out.println("-> " + location.getLat() + " / " + location.getLng());
-                SavingStore savingStore = SavingStore.builder()
-                    .storeId(thriftStore.getStoreId())
-                    .storeName(thriftStore.getStoreName())
-                    .phoneNumber(thriftStore.getPhoneNumber())
-                    .address(thriftStore.getAddress())
-                    .latitude(location.getLat())
-                    .longitude(location.getLng())
-                    .items(new ArrayList<>())
-                    .build();
-                storeMap.put(thriftStore.getStoreId(), savingStore);
-            }
-
-            if (thriftStore.getPrice() != 0) {
-                SavingItem savingItem = SavingItem.builder()
-                    .itemId(thriftStore.getItemId())
-                    .itemName(thriftStore.getItemName())
-                    .category(thriftStore.getCategory())
-                    .price(thriftStore.getPrice())
-                    .store(storeMap.get(thriftStore.getStoreId()))
-                    .build();
-
-                storeMap.get(thriftStore.getStoreId()).getItems().add(savingItem);
-            }
-        }
-
-        System.out.println("size: " + storeMap.size());
-
-        storeMap.values().forEach(savingStore -> {
-            savingStoreRepository.save(savingStore);
-            savingItemRepository.saveAll(savingStore.getItems());
-        });
-
+        storeMap.values().forEach(this::persistStoresAndItems);
     }
 
     public List<CategoryPriceDTO> getCategoryPrice() {
@@ -102,6 +64,55 @@ public class SavingPlaceService {
                         item.getCategory(), item.getPrice()))
                     .collect(Collectors.toList())))
             .collect(Collectors.toList());
+    }
+
+    private void processThriftStore(ThriftStore thriftStore, Map<String, SavingStore> storeMap) {
+        if (thriftStore.getAddress().isEmpty()) {
+            return;
+        }
+
+        storeMap.computeIfAbsent(thriftStore.getStoreId(), k -> {
+            try {
+                return createSavingStore(thriftStore);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            return null;
+        });
+
+        if (thriftStore.getPrice() != 0) {
+            addSavingItem(thriftStore, storeMap.get(thriftStore.getStoreId()));
+        }
+    }
+
+    private SavingStore createSavingStore(ThriftStore thriftStore)
+        throws UnsupportedEncodingException {
+        Location location = googleMapApiService.requestGeocode(thriftStore.getAddress());
+        return SavingStore.builder()
+            .storeId(thriftStore.getStoreId())
+            .storeName(thriftStore.getStoreName())
+            .phoneNumber(thriftStore.getPhoneNumber())
+            .address(thriftStore.getAddress())
+            .latitude(location.getLat())
+            .longitude(location.getLng())
+            .items(new ArrayList<>())
+            .build();
+    }
+
+    private void addSavingItem(ThriftStore thriftStore, SavingStore savingStore) {
+        SavingItem savingItem = SavingItem.builder()
+            .itemId(thriftStore.getItemId())
+            .itemName(thriftStore.getItemName())
+            .category(thriftStore.getCategory())
+            .price(thriftStore.getPrice())
+            .store(savingStore)
+            .build();
+        savingStore.getItems().add(savingItem);
+    }
+
+    private void persistStoresAndItems(SavingStore savingStore) {
+        savingStoreRepository.save(savingStore);
+        savingItemRepository.saveAll(savingStore.getItems());
     }
 
     private String decodeHtmlEntities(String input) {
