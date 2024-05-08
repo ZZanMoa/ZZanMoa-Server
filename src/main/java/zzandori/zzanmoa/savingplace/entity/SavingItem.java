@@ -2,6 +2,7 @@ package zzandori.zzanmoa.savingplace.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -38,7 +39,7 @@ public class SavingItem {
     @Column(name = "price")
     private Integer price;
 
-    @ManyToOne
-    @JoinColumn(name = "store_id", referencedColumnName = "store_id")
+    @ManyToOne()
+    @JoinColumn(name = "store")
     private SavingStore store;
 }

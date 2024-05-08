@@ -1,6 +1,7 @@
 package zzandori.zzanmoa.savingplace.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,12 +20,17 @@ public class SavingPlaceController {
 
     private final SavingPlaceService savingPlaceService;
 
+    @GetMapping("/save")
+    public void save() throws InterruptedException, UnsupportedEncodingException {
+        savingPlaceService.save();
+    }
+
     @GetMapping("/get/category")
     public List<CategoryPriceDTO> getCategoryPrice(){
         return savingPlaceService.getCategoryPrice();
     }
 
-    @GetMapping("get/store")
+    @GetMapping("/get/store")
     public List<StoreInfoDTO> getStores(){
         return savingPlaceService.getAllStoresWithItems();
     }
