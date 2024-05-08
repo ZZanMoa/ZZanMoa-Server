@@ -1,5 +1,6 @@
 package zzandori.zzanmoa.savingplace.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -39,6 +40,12 @@ public class SavingStore {
     @Column(name = "address")
     private String address;
 
-    @OneToMany(mappedBy = "store", fetch = FetchType.LAZY)
+    @Column(name = "latitude")
+    private Double latitude;
+
+    @Column(name = "longitude")
+    private Double longitude;
+
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SavingItem> items;
 }
