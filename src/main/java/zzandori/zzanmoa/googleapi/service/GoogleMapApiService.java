@@ -5,8 +5,11 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-import zzandori.zzanmoa.googleapi.dto.GoogleMapApiRequest;
-import zzandori.zzanmoa.googleapi.dto.GoogleMapApiResponse;
+import zzandori.zzanmoa.googleapi.dto.FindPlaceRequest;
+import zzandori.zzanmoa.googleapi.dto.FindPlaceResponse;
+import zzandori.zzanmoa.googleapi.dto.Candidate;
+import zzandori.zzanmoa.googleapi.dto.GeocodeRequest;
+import zzandori.zzanmoa.googleapi.dto.GeocodeResponse;
 import zzandori.zzanmoa.googleapi.dto.Location;
 import zzandori.zzanmoa.webclient.util.WebClientUtil;
 
@@ -15,26 +18,33 @@ import zzandori.zzanmoa.webclient.util.WebClientUtil;
 public class GoogleMapApiService {
 
     private final WebClientUtil webClientUtil;
-    private final GoogleMapApiRequest googleMapApiRequest;
+    private final GeocodeRequest geocodeRequest;
+    private final FindPlaceRequest findPlaceRequest;
 
-    public Mono<String> requestTest(String address) throws UnsupportedEncodingException {
-        String requestUrl = googleMapApiRequest.requestUrl(address);
-        return webClientUtil.get(
+    public Location requestGeocode(String address) throws UnsupportedEncodingException {
+        String requestUrl = geocodeRequest.requestUrl(address);
+        Mono<GeocodeResponse> responseMono = webClientUtil.get(
             requestUrl,
-            String.class);
-    }
-
-
-    public Location request(String address) throws UnsupportedEncodingException {
-        String requestUrl = googleMapApiRequest.requestUrl(address);
-        Mono<GoogleMapApiResponse> responseMono = webClientUtil.get(
-            requestUrl,
-            GoogleMapApiResponse.class);
+            GeocodeResponse.class);
 
         return responseMono.flatMap(dto -> {
             return Mono.justOrEmpty(Optional.ofNullable(dto.getResults())
                 .filter(results -> !results.isEmpty())
                 .map(results -> results.get(0).getGeometry().getLocation()));
+        }).block();
+    }
+
+    public Candidate requestFindPlace(String address) throws UnsupportedEncodingException {
+        String requestUrl = findPlaceRequest.requestUrl(address);
+        Mono<FindPlaceResponse> responseMono = webClientUtil.get(
+            requestUrl,
+            FindPlaceResponse.class
+        );
+
+        return responseMono.flatMap(dto -> {
+            return Mono.justOrEmpty(Optional.ofNullable(dto.getCandidates())
+                .filter(formattedAddresses -> !formattedAddresses.isEmpty())
+                .map(formattedAddresses -> formattedAddresses.get(0)));
         }).block();
     }
 
