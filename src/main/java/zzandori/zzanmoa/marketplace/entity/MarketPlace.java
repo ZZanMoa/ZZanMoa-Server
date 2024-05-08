@@ -27,6 +27,9 @@ public class MarketPlace {
     @Column(name = "market_name")
     private String marketName;
 
+    @Column(name = "market_address")
+    private String marketAddress;
+
     @Column(name = "latitude")
     private Double latitude;
 
@@ -34,9 +37,10 @@ public class MarketPlace {
     private Double longitude;
 
     @Builder
-    public MarketPlace(String marketId, String marketName, Double latitude, Double longitude) {
+    public MarketPlace(String marketId, String marketName, String marketAddress, Double latitude, Double longitude) {
         this.marketId = marketId;
         this.marketName = marketName;
+        this.marketAddress = marketAddress;
         this.latitude = latitude;
         this.longitude = longitude;
     }
