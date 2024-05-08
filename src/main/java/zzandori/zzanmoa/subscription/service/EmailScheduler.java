@@ -23,7 +23,7 @@ public class EmailScheduler {
 
     private static final Logger logger = LoggerFactory.getLogger(EmailScheduler.class);
 
-    //@Scheduled(cron = "0 0 10 * * ?", zone = "Asia/Seoul") // 매일 오전 10시에 실행
+    @Scheduled(cron = "0 0 10 * * ?", zone = "Asia/Seoul") // 매일 오전 10시에 실행
     public void sendEmailsForPostsLastTwoMonths() {
         LocalDate twoMonthsAgo = LocalDate.now().minusMonths(3);
         List<BargainBoard> postsLastTwoMonths = bargainBoardRepository.findByCreatedAtAfter(twoMonthsAgo);
