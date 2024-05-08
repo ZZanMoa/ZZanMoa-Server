@@ -39,10 +39,16 @@ public class MarketPlaceService {
 
     public List<MarketPlaceResponseDto> getMarketPlaces() {
         List<MarketPlace> marketPlaces = marketPlaceRepository.findAll();
-        return marketPlaces.stream().map(
-            marketPlace -> MarketPlaceResponseDto.builder().marketId(marketPlace.getMarketId())
-                .marketName(marketPlace.getMarketName()).latitude(marketPlace.getLatitude())
-                .longitude(marketPlace.getLongitude()).build()).collect(Collectors.toList());
+        return marketPlaces.stream()
+            .filter(marketPlace -> marketPlace.getMarketAddress() != null)
+            .map(
+            marketPlace -> MarketPlaceResponseDto.builder()
+                .marketId(marketPlace.getMarketId())
+                .marketName(marketPlace.getMarketName())
+                .latitude(marketPlace.getLatitude())
+                .longitude(marketPlace.getLongitude())
+                .build())
+            .collect(Collectors.toList());
     }
 
     private void saveMarketPlace(Market market) throws UnsupportedEncodingException {
