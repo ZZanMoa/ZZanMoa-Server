@@ -37,26 +37,35 @@ public class MarketPlaceService {
         });
     }
 
-    private void saveMarketPlace(Market market) throws UnsupportedEncodingException {
-        Candidate candidate = googleMapApiService.requestFindPlace(market.getMarketName());
-
-        Location location = null;
-        if (candidate != null) {
-            location = googleMapApiService.requestGeocode(candidate.getFormatted_address());
-        }
-        MarketPlace marketPlace = MarketPlace.builder().marketId(market.getMarketId())
-            .marketName(market.getMarketName())
-            .marketAddress(candidate != null ? candidate.getFormatted_address() : null)
-            .latitude(location != null ? location.getLat() : null)
-            .longitude(location != null ? location.getLng() : null).build();
-        marketPlaceRepository.save(marketPlace);
-    }
-
     public List<MarketPlaceResponseDto> getMarketPlaces() {
         List<MarketPlace> marketPlaces = marketPlaceRepository.findAll();
         return marketPlaces.stream().map(
             marketPlace -> MarketPlaceResponseDto.builder().marketId(marketPlace.getMarketId())
                 .marketName(marketPlace.getMarketName()).latitude(marketPlace.getLatitude())
                 .longitude(marketPlace.getLongitude()).build()).collect(Collectors.toList());
+    }
+
+    private void saveMarketPlace(Market market) throws UnsupportedEncodingException {
+        Candidate candidate = googleMapApiService.requestFindPlace(market.getMarketName());
+        String formattedAddress = candidate != null ? candidate.getFormatted_address() : null;
+
+        Location location = getLocationFromAddress(formattedAddress);
+
+        MarketPlace marketPlace = buildMarketPlace(market, formattedAddress, location);
+        marketPlaceRepository.save(marketPlace);
+    }
+
+    private Location getLocationFromAddress(String address) throws UnsupportedEncodingException {
+        return address != null ? googleMapApiService.requestGeocode(address) : null;
+    }
+
+    private MarketPlace buildMarketPlace(Market market, String formattedAddress, Location location) {
+        return MarketPlace.builder()
+            .marketId(market.getMarketId())
+            .marketName(market.getMarketName())
+            .marketAddress(formattedAddress)
+            .latitude(location != null ? location.getLat() : null)
+            .longitude(location != null ? location.getLng() : null)
+            .build();
     }
 }
