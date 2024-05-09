@@ -20,4 +20,8 @@ public class RankDto {
         this.savingList = savingList;
         this.totalSaving = totalSaving;
     }
+
+    public void setRank(int rank) {
+        this.rank = rank;
+    }
 }
