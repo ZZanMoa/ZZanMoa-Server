@@ -58,7 +58,8 @@ public class ComparisonService {
             .collect(Collectors.groupingBy(Market::getMarketName));
     }
 
-    private List<RankDto> createAndSortRankDtos(Map<String, List<Market>> marketGroups, ComparisonRequestDto request) {
+    private List<RankDto> createAndSortRankDtos(Map<String, List<Market>> marketGroups,
+        ComparisonRequestDto request) {
         List<Item> items = itemService.getItemsByItemNames(request.getItemNames());
         return marketGroups.entrySet().stream()
             .map(entry -> buildRankDto(entry.getKey(), entry.getValue(), items))
@@ -90,8 +91,21 @@ public class ComparisonService {
     }
 
     private SavingDto createSavingDto(Market market, Item item) {
-        int saving = (market != null) ? item.getAveragePrice() - (market != null ? market.getPrice() : 0): 0;
-        return new SavingDto(new MarketItemDto(market != null ? market.getItemId() : item.getItemId(), item.getItemName(),
-            market != null ? market.getPrice() : 0, market != null && market.getPrice() < item.getAveragePrice()), saving);
+        int saving = calculatesSaving(market, item);
+        return new SavingDto(
+            createMarketItemDto(market, item)
+            , saving);
+    }
+
+    private static MarketItemDto createMarketItemDto(Market market, Item item) {
+        return new MarketItemDto(market != null ? market.getItemId() : item.getItemId(),
+            item.getItemName(),
+            market != null ? market.getPrice() : 0,
+            market != null ? true : false);
+    }
+
+    private static int calculatesSaving(Market market, Item item) {
+        return (market != null) ? (market != null ? market.getPrice() : 0) - item.getAveragePrice()
+            : 0;
     }
 }
