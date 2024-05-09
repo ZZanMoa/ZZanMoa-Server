@@ -52,7 +52,6 @@ public class ComparisonService {
     }
 
     private Map<String, List<Market>> loadMarketData(ComparisonRequestDto request) {
-        List<Item> items = itemService.getItemsByItemNames(request.getItemNames());
         List<Market> markets = marketService.getMarketsByNames(request.getMarketNames());
         return markets.stream()
             .collect(Collectors.groupingBy(Market::getMarketName));
@@ -68,10 +67,22 @@ public class ComparisonService {
     }
 
     private List<RankDto> assignRanks(List<RankDto> rankDtos) {
-        return IntStream.range(0, rankDtos.size())
-            .mapToObj(index -> new RankDto(index + 1, rankDtos.get(index).getMarket(),
-                rankDtos.get(index).getSavingList(), rankDtos.get(index).getTotalSaving()))
-            .collect(Collectors.toList());
+        if (rankDtos.isEmpty()) {
+            return rankDtos;
+        }
+        int rank = 1;
+        int prevTotalSaving = rankDtos.get(0).getTotalSaving();
+        rankDtos.get(0).setRank(rank);
+
+        for (int i = 1; i < rankDtos.size(); i++) {
+            if (rankDtos.get(i).getTotalSaving() == prevTotalSaving) {
+                rankDtos.get(i).setRank(rank);
+            } else {
+                prevTotalSaving = rankDtos.get(i).getTotalSaving();
+                rankDtos.get(i).setRank(++rank);
+            }
+        }
+        return rankDtos;
     }
 
     private RankDto buildRankDto(String marketName, List<Market> markets, List<Item> items) {
