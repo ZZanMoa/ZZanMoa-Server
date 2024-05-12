@@ -2,7 +2,7 @@ package zzandori.zzanmoa.subscription.service;
 
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import zzandori.zzanmoa.bargainboard.entity.BargainBoard;
@@ -21,9 +21,10 @@ import org.springframework.mail.SimpleMailMessage;
 @RequiredArgsConstructor
 public class SubscriptionService {
 
-    @Autowired
-    private JavaMailSender emailSender;
+    @Value("${MAIL_USERNAME}")
+    private String MAIL_USERNAME;
 
+    private final JavaMailSender emailSender;
     private final DistrictRepository districtRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final EmailHistoryRepository emailHistoryRepository;
@@ -33,7 +34,7 @@ public class SubscriptionService {
         boolean allSavedSuccessfully = true;
 
         for (String districtName : subscriptionDto.getDistrict()) {
-            if (!createSubscription(districtName, subscriptionDto.getEmail())) {
+            if (!createSubscription(districtName, subscriptionDto.getName(),subscriptionDto.getEmail())) {
                 allSavedSuccessfully = false;
             }
         }
@@ -43,10 +44,11 @@ public class SubscriptionService {
             .build();
     }
 
-    private boolean createSubscription(String districtName, String email) {
+    private boolean createSubscription(String districtName, String name, String email) {
         try {
             District district = districtRepository.findByDistrictName(districtName);
             Subscription subscription = Subscription.builder()
+                .name(name)
                 .email(email)
                 .district(district)
                 .build();
@@ -66,7 +68,7 @@ public class SubscriptionService {
 
     private void prepareAndSendEmail(String to, String subject, String text, Subscription subscription, BargainBoard bargainBoard) {
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("zzanmoa@gmail.com");
+        message.setFrom(MAIL_USERNAME + "@gmail.com");
         message.setTo(to);
         message.setSubject(subject);
         message.setText(text);

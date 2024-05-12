@@ -13,6 +13,7 @@ import lombok.ToString;
 @Builder
 @ToString
 public class SubscriptionDTO {
+    private String name;
     private String email;
     private List<String> district;
 }
