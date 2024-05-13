@@ -10,9 +10,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import zzandori.zzanmoa.subscription.dto.SubscriptionCancelDTO;
 import zzandori.zzanmoa.subscription.dto.SubscriptionDTO;
 import zzandori.zzanmoa.subscription.dto.SubscriptionStatusDTO;
 import zzandori.zzanmoa.subscription.service.EmailScheduler;
+import zzandori.zzanmoa.subscription.service.SubscriptionCancelService;
 import zzandori.zzanmoa.subscription.service.SubscriptionService;
 import zzandori.zzanmoa.subscription.service.SubscriptionValidationService;
 
@@ -24,6 +26,7 @@ public class SubscriptionController {
 
     private final SubscriptionValidationService validatorService;
     private final SubscriptionService subscriptionService;
+    private final SubscriptionCancelService subscriptionCancelService;
     private final EmailScheduler emailScheduler;
 
     @PostMapping
@@ -34,6 +37,15 @@ public class SubscriptionController {
 
         SubscriptionStatusDTO status = subscriptionService.subscribe(subscriptionDto);
         return ResponseEntity.ok(status);
+    }
+
+    @PostMapping("/cancel")
+    public ResponseEntity<?> cancelSubscription(@Valid @RequestBody SubscriptionCancelDTO subscriptionCancelDTO, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return validatorService.processBindingResultErrors(bindingResult);
+        }
+
+        return subscriptionCancelService.cancelSubscription(subscriptionCancelDTO);
     }
 
     @GetMapping("/send-test")
