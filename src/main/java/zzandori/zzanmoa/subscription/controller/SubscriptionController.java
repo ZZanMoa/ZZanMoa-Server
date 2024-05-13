@@ -50,6 +50,6 @@ public class SubscriptionController {
 
     @GetMapping("/send-test")
     public void sendEmail(){
-        emailScheduler.sendEmailsForPostsLastTwoMonths();
+        emailScheduler.scheduleEmailTasks();
     }
 }
