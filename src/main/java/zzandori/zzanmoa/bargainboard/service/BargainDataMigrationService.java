@@ -18,7 +18,7 @@ import zzandori.zzanmoa.livingcost.repository.LivingCostRepository;
 
 @RequiredArgsConstructor
 @Service
-public class DataSettingService {
+public class BargainDataMigrationService {
     private final BargainRepository bargainRepository;
     private final BargainBoardRepository bargainBoardRepository;
     private final LivingCostRepository livingCostRepository;
