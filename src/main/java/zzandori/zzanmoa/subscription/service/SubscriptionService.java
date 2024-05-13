@@ -1,9 +1,13 @@
 package zzandori.zzanmoa.subscription.service;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,36 +36,39 @@ public class SubscriptionService {
 
     @Transactional
     public ResponseEntity<?> subscribe(SubscriptionDTO subscriptionDto) {
-        StringBuilder resultMessage = new StringBuilder();
-        boolean allSavedSuccessfully = true;
+        Map<String, Object> results = new LinkedHashMap<>();
+        boolean allSuccess = true;
 
         for (String districtName : subscriptionDto.getDistrict()) {
             ResponseEntity<?> response = processSubscriptionForDistrict(subscriptionDto, districtName);
             if (!response.getStatusCode().is2xxSuccessful()) {
-                allSavedSuccessfully = false;
-                resultMessage.append((String) response.getBody());
+                allSuccess = false;
             }
+            results.put(districtName, Map.of(
+                "status", response.getStatusCode(),
+                "message", Objects.requireNonNull(response.getBody()).toString()
+            ));
         }
 
-        return allSavedSuccessfully
-            ? ResponseEntity.ok("All subscriptions created successfully.")
-            : ResponseEntity.badRequest().body(resultMessage.toString());
+        HttpStatus overallStatus = allSuccess ? HttpStatus.CREATED : HttpStatus.PARTIAL_CONTENT;
+        return new ResponseEntity<>(results, overallStatus);
     }
+
 
     private ResponseEntity<?> processSubscriptionForDistrict(SubscriptionDTO subscriptionDto, String districtName) {
         District district = districtRepository.findByDistrictName(districtName);
         if (district == null) {
-            return ResponseEntity.badRequest().body("District name '" + districtName + "' not found. ");
+            return ResponseEntity.badRequest().body("해당 자치구 존재하지 않음");
         }
 
         if (alreadySubscribe(subscriptionDto.getEmail(), subscriptionDto.getName(), district)) {
-            return ResponseEntity.badRequest().body("Already subscribed to " + districtName + ". ");
+            return ResponseEntity.badRequest().body("이미 구독한 내역 존재");
         }
 
         boolean saved = createSubscription(subscriptionDto.getName(), subscriptionDto.getEmail(), district);
         return saved
-            ? ResponseEntity.ok("Subscription created successfully for " + districtName + ".")
-            : ResponseEntity.badRequest().body("Failed to create subscription for district: " + districtName + ". ");
+            ? ResponseEntity.ok("구독 성공")
+            : ResponseEntity.badRequest().body("구독 실패");
     }
 
 
