@@ -17,13 +17,13 @@ import lombok.ToString;
 @ToString
 public class SubscriptionDTO {
 
-    @NotBlank(message = "이름 입력은 필수 입니다.")
+    @NotBlank(message = "NAME_IS_EMPTY")
     private String name;
 
-    @NotBlank(message = "이메일 입력은 필수 입니다.")
-    @Pattern(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+.[A-Za-z]{2,6}$", message = "이메일 형식에 맞지 않습니다.")
+    @NotBlank(message = "EMAIL_IS_EMPTY")
+    @Pattern(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+.[A-Za-z]{2,6}$", message = "EMAIL_FORMAT_FAILED")
     private String email;
 
-    @NotEmpty(message = "자치구 선택은 필수 입니다.")
+    @NotEmpty(message = "DISTRICT_IS_EMPTY")
     private List<String> district;
 }
