@@ -1,15 +1,20 @@
 package zzandori.zzanmoa.subscription.service;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import zzandori.zzanmoa.bargainboard.entity.BargainBoard;
 import zzandori.zzanmoa.bargainboard.entity.District;
 import zzandori.zzanmoa.bargainboard.repository.DistrictRepository;
 import zzandori.zzanmoa.subscription.dto.SubscriptionDTO;
-import zzandori.zzanmoa.subscription.dto.SubscriptionStatusDTO;
 import zzandori.zzanmoa.subscription.entity.EmailHistory;
 import zzandori.zzanmoa.subscription.entity.Subscription;
 import zzandori.zzanmoa.subscription.repository.EmailHistoryRepository;
@@ -21,32 +26,61 @@ import org.springframework.mail.SimpleMailMessage;
 @RequiredArgsConstructor
 public class SubscriptionService {
 
-    @Autowired
-    private JavaMailSender emailSender;
+    @Value("${MAIL_USERNAME}")
+    private String MAIL_USERNAME;
 
+    private final JavaMailSender emailSender;
     private final DistrictRepository districtRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final EmailHistoryRepository emailHistoryRepository;
 
     @Transactional
-    public SubscriptionStatusDTO subscribe(SubscriptionDTO subscriptionDto) {
-        boolean allSavedSuccessfully = true;
+    public ResponseEntity<?> subscribe(SubscriptionDTO subscriptionDto) {
+        Map<String, Object> results = new LinkedHashMap<>();
+        boolean allSuccess = true;
 
         for (String districtName : subscriptionDto.getDistrict()) {
-            if (!createSubscription(districtName, subscriptionDto.getEmail())) {
-                allSavedSuccessfully = false;
+            ResponseEntity<?> response = processSubscriptionForDistrict(subscriptionDto, districtName);
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                allSuccess = false;
             }
+            results.put(districtName, Map.of(
+                "status", response.getStatusCode(),
+                "message", Objects.requireNonNull(response.getBody()).toString()
+            ));
         }
 
-        return SubscriptionStatusDTO.builder()
-            .status(allSavedSuccessfully)
-            .build();
+        HttpStatus overallStatus = allSuccess ? HttpStatus.CREATED : HttpStatus.PARTIAL_CONTENT;
+        return new ResponseEntity<>(results, overallStatus);
     }
 
-    private boolean createSubscription(String districtName, String email) {
+
+    private ResponseEntity<?> processSubscriptionForDistrict(SubscriptionDTO subscriptionDto, String districtName) {
+        District district = districtRepository.findByDistrictName(districtName);
+        if (district == null) {
+            return ResponseEntity.badRequest().body("해당 자치구 존재하지 않음");
+        }
+
+        if (alreadySubscribe(subscriptionDto.getEmail(), subscriptionDto.getName(), district)) {
+            return ResponseEntity.badRequest().body("이미 구독한 내역 존재");
+        }
+
+        boolean saved = createSubscription(subscriptionDto.getName(), subscriptionDto.getEmail(), district);
+        return saved
+            ? ResponseEntity.ok("구독 성공")
+            : ResponseEntity.badRequest().body("구독 실패");
+    }
+
+
+    private boolean alreadySubscribe(String email, String name, District district) {
+        List<Subscription> subscriptions = subscriptionRepository.findByEmailAndNameAndDistrict(email, name, district);
+        return !subscriptions.isEmpty();
+    }
+
+    private boolean createSubscription(String name, String email, District district) {
         try {
-            District district = districtRepository.findByDistrictName(districtName);
             Subscription subscription = Subscription.builder()
+                .name(name)
                 .email(email)
                 .district(district)
                 .build();
@@ -59,14 +93,14 @@ public class SubscriptionService {
 
     public void sendEmail(String to, String subject, String text, Subscription subscription, BargainBoard bargainBoard) {
         if (isEmailAlreadySent(subscription, bargainBoard)) {
-            return; // 중복 이메일 방지
+            return;
         }
         prepareAndSendEmail(to, subject, text, subscription, bargainBoard);
     }
 
     private void prepareAndSendEmail(String to, String subject, String text, Subscription subscription, BargainBoard bargainBoard) {
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("zzanmoa@gmail.com");
+        message.setFrom(MAIL_USERNAME + "@gmail.com");
         message.setTo(to);
         message.setSubject(subject);
         message.setText(text);

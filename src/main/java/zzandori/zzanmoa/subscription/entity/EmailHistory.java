@@ -43,4 +43,8 @@ public class EmailHistory extends TimeStamp{
 
     @Column(name = "sent_at")
     private LocalDateTime sentAt;
+
+    public void setSubscription(Subscription subscription) {
+        this.subscription = subscription;
+    }
 }

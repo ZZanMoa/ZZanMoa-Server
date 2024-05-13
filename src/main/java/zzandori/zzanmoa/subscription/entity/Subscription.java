@@ -29,6 +29,9 @@ public class Subscription extends TimeStamp{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name = "name")
+    private String name;
+
     @Column(name = "email")
     private String email;
 
