@@ -6,10 +6,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import zzandori.zzanmoa.common.dto.SuccessResponseDTO;
 import zzandori.zzanmoa.exception.subscription.SubscriptionAppException;
 import zzandori.zzanmoa.exception.subscription.SubscriptionErrorCode;
 import zzandori.zzanmoa.subscription.dto.SubscriptionCancelDTO;
-import zzandori.zzanmoa.subscription.dto.SubscriptionStatusDTO;
 import zzandori.zzanmoa.subscription.entity.EmailHistory;
 import zzandori.zzanmoa.subscription.entity.Subscription;
 import zzandori.zzanmoa.subscription.repository.EmailHistoryRepository;
@@ -33,8 +33,8 @@ public class SubscriptionCancelService {
         setNullSubscriptionInEmailHistory(subscriptionList);
         deleteSubscriptions(subscriptionList);
 
-        return ResponseEntity.ok().body(SubscriptionStatusDTO.builder()
-            .status(HttpStatus.OK)
+        return ResponseEntity.ok().body(SuccessResponseDTO.builder()
+            .statusCode(HttpStatus.OK.value())
             .message("구독 취소하기 성공")
             .build());
     }
