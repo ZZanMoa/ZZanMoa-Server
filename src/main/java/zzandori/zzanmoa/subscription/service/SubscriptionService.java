@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -14,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import zzandori.zzanmoa.bargainboard.entity.BargainBoard;
 import zzandori.zzanmoa.bargainboard.entity.District;
 import zzandori.zzanmoa.bargainboard.repository.DistrictRepository;
+import zzandori.zzanmoa.exception.subscription.SubscriptionAppException;
+import zzandori.zzanmoa.exception.subscription.SubscriptionErrorCode;
 import zzandori.zzanmoa.subscription.dto.SubscriptionDTO;
 import zzandori.zzanmoa.subscription.entity.EmailHistory;
 import zzandori.zzanmoa.subscription.entity.Subscription;
@@ -40,14 +41,13 @@ public class SubscriptionService {
         boolean allSuccess = true;
 
         for (String districtName : subscriptionDto.getDistrict()) {
-            ResponseEntity<?> response = processSubscriptionForDistrict(subscriptionDto, districtName);
-            if (!response.getStatusCode().is2xxSuccessful()) {
+            try {
+                processSubscriptionForDistrict(subscriptionDto, districtName);
+                results.put(districtName, Map.of("status", HttpStatus.OK, "message", "구독 성공"));
+            } catch (SubscriptionAppException e) {
                 allSuccess = false;
+                results.put(districtName, Map.of("status", e.getErrorCode().getHttpStatus(), "message", e.getMessage()));
             }
-            results.put(districtName, Map.of(
-                "status", response.getStatusCode(),
-                "message", Objects.requireNonNull(response.getBody()).toString()
-            ));
         }
 
         HttpStatus overallStatus = allSuccess ? HttpStatus.CREATED : HttpStatus.PARTIAL_CONTENT;
@@ -55,20 +55,20 @@ public class SubscriptionService {
     }
 
 
-    private ResponseEntity<?> processSubscriptionForDistrict(SubscriptionDTO subscriptionDto, String districtName) {
+    private void processSubscriptionForDistrict(SubscriptionDTO subscriptionDto, String districtName) {
         District district = districtRepository.findByDistrictName(districtName);
         if (district == null) {
-            return ResponseEntity.badRequest().body("해당 자치구 존재하지 않음");
+            throw new SubscriptionAppException(SubscriptionErrorCode.DISTRICT_NOT_FOUND);
         }
 
         if (alreadySubscribe(subscriptionDto.getEmail(), subscriptionDto.getName(), district)) {
-            return ResponseEntity.badRequest().body("이미 구독한 내역 존재");
+            throw new SubscriptionAppException(SubscriptionErrorCode.SUBSCRIPTION_DUPLICATED);
         }
 
         boolean saved = createSubscription(subscriptionDto.getName(), subscriptionDto.getEmail(), district);
-        return saved
-            ? ResponseEntity.ok("구독 성공")
-            : ResponseEntity.badRequest().body("구독 실패");
+        if (!saved) {
+            throw new SubscriptionAppException(SubscriptionErrorCode.SAVE_DATA_FAILED);
+        }
     }
 
 
@@ -78,24 +78,24 @@ public class SubscriptionService {
     }
 
     private boolean createSubscription(String name, String email, District district) {
-        try {
-            Subscription subscription = Subscription.builder()
-                .name(name)
-                .email(email)
-                .district(district)
-                .build();
-            subscriptionRepository.save(subscription);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
+        Subscription subscription = Subscription.builder()
+            .name(name)
+            .email(email)
+            .district(district)
+            .build();
+        subscriptionRepository.save(subscription);
+        return true;
     }
 
     public void sendEmail(String to, String subject, String text, Subscription subscription, BargainBoard bargainBoard) {
         if (isEmailAlreadySent(subscription, bargainBoard)) {
             return;
         }
-        prepareAndSendEmail(to, subject, text, subscription, bargainBoard);
+        try {
+            prepareAndSendEmail(to, subject, text, subscription, bargainBoard);
+        } catch (Exception e) {
+            throw new SubscriptionAppException(SubscriptionErrorCode.EMAIL_SEND_FAILED);
+        }
     }
 
     private void prepareAndSendEmail(String to, String subject, String text, Subscription subscription, BargainBoard bargainBoard) {
@@ -104,13 +104,8 @@ public class SubscriptionService {
         message.setTo(to);
         message.setSubject(subject);
         message.setText(text);
-
-        try {
-            emailSender.send(message);
-            saveEmailHistory(subscription, bargainBoard, "SUCCESS");
-        } catch (Exception e) {
-            saveEmailHistory(subscription, bargainBoard, "FAILED");
-        }
+        emailSender.send(message);
+        saveEmailHistory(subscription, bargainBoard, "SUCCESS");
     }
 
     private boolean isEmailAlreadySent(Subscription subscription, BargainBoard bargainBoard) {
