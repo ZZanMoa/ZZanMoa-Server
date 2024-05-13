@@ -13,7 +13,7 @@ import zzandori.zzanmoa.bargainboard.dto.DistrictResponseDTO;
 import zzandori.zzanmoa.bargainboard.dto.StatusResponseDTO;
 import zzandori.zzanmoa.bargainboard.dto.PaginatedResponseDTO;
 import zzandori.zzanmoa.bargainboard.service.BargainBoardService;
-import zzandori.zzanmoa.bargainboard.service.DataSettingService;
+import zzandori.zzanmoa.bargainboard.service.BargainDataMigrationService;
 
 @Tag(name = "BargainBoardController", description = "서울시 할인행사 & 직거래 마켓 정보 알리미 컨트롤러")
 
@@ -23,7 +23,7 @@ import zzandori.zzanmoa.bargainboard.service.DataSettingService;
 public class BargainBoardController {
 
     private final BargainBoardService bargainBoardService;
-    private final DataSettingService dataSettingService;
+    private final BargainDataMigrationService bargainDataMigrationService;
 
     @GetMapping("/")
     public ResponseEntity<?> getBargainBoard(@RequestParam(required = false) Integer eventId, @RequestParam(required = false) Integer districtId, @RequestParam(required = false) String keyword, @RequestParam(defaultValue = "0") int page) {
@@ -49,17 +49,17 @@ public class BargainBoardController {
 
     @GetMapping("/save/district")
     public void setBargainDistrict(){
-        dataSettingService.saveBargainDistrictData();
+        bargainDataMigrationService.saveBargainDistrictData();
     }
 
     @GetMapping("/save/bargain")
     public void setBargain(){
-        dataSettingService.saveBargainData();
+        bargainDataMigrationService.saveBargainData();
     }
 
     @GetMapping("/save/living-cost")
     public void setLivingCost(){
-        dataSettingService.saveLivingCostData();
+        bargainDataMigrationService.saveLivingCostData();
     }
 
 
