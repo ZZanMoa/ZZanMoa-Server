@@ -51,7 +51,7 @@ public class SubscriptionService {
     private void processSubscriptionForDistrict(SubscriptionDTO subscriptionDto, String districtName) {
         District district = districtRepository.findByDistrictName(districtName);
         if (district == null) {
-            throw new DistrictForSubscriptionAppException(SubscriptionErrorCode.DISTRICT_NOT_FOUND, districtName);
+            throw new SubscriptionAppException(SubscriptionErrorCode.DISTRICT_NOT_FOUND);
         }
 
         if (alreadySubscribe(subscriptionDto.getEmail(), subscriptionDto.getName(), district)) {
