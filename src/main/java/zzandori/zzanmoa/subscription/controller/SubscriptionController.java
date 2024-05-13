@@ -31,7 +31,7 @@ public class SubscriptionController {
     @PostMapping
     public ResponseEntity<?> subscribe(@Valid @RequestBody SubscriptionDTO subscriptionDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            validatorService.validate(bindingResult);
+            return validatorService.validate(bindingResult);
         }
 
         return subscriptionService.subscribe(subscriptionDto);
@@ -40,7 +40,7 @@ public class SubscriptionController {
     @PostMapping("/cancel")
     public ResponseEntity<?> cancelSubscription(@Valid @RequestBody SubscriptionCancelDTO subscriptionCancelDTO, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            validatorService.validate(bindingResult);
+            return validatorService.validate(bindingResult);
         }
 
         return subscriptionCancelService.cancelSubscription(subscriptionCancelDTO);
