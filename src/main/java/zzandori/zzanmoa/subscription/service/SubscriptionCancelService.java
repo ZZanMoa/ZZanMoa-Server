@@ -18,20 +18,26 @@ public class SubscriptionCancelService {
     private final EmailHistoryRepository emailHistoryRepository;
 
     public ResponseEntity<?> cancelSubscription(SubscriptionCancelDTO subscriptionCancelDTO){
-        String email = subscriptionCancelDTO.getEmail();;
-        String name = subscriptionCancelDTO.getName();
-        List<Subscription> subscriptionList = subscriptionRepository.findByEmailAndName(email, name);
+        List<Subscription> subscriptionList = findSubscriptions(subscriptionCancelDTO);
 
         if (subscriptionList.isEmpty()) {
             return ResponseEntity.badRequest().body("해당하는 구독 정보를 찾을 수 없습니다.");
         }
 
         setNullSubscriptionInEmailHistory(subscriptionList);
+        deleteSubscriptions(subscriptionList);
 
-        subscriptionRepository.deleteAll(subscriptionList);
         return ResponseEntity.ok().body("구독이 성공적으로 취소되었습니다.");
     }
 
+    private List<Subscription> findSubscriptions(SubscriptionCancelDTO subscriptionCancelDTO){
+        return subscriptionRepository.findByEmailAndName(subscriptionCancelDTO.getEmail(),
+            subscriptionCancelDTO.getName());
+    }
+
+    private void deleteSubscriptions(List<Subscription> subscriptions) {
+        subscriptionRepository.deleteAll(subscriptions);
+    }
 
     private void setNullSubscriptionInEmailHistory(List<Subscription> subscriptions) {
         subscriptions.forEach(subscription -> {
