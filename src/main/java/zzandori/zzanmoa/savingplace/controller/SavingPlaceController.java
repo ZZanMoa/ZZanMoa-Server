@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import zzandori.zzanmoa.savingplace.service.SavingDataMigrationService;
 import zzandori.zzanmoa.savingplace.service.SavingPlaceService;
 import zzandori.zzanmoa.savingplace.dto.CategoryPriceDTO;
 import zzandori.zzanmoa.savingplace.dto.StoreInfoDTO;
@@ -19,10 +20,11 @@ import zzandori.zzanmoa.savingplace.dto.StoreInfoDTO;
 public class SavingPlaceController {
 
     private final SavingPlaceService savingPlaceService;
+    private final SavingDataMigrationService savingDataMigrationService;
 
     @GetMapping("/save")
     public void save() throws InterruptedException, UnsupportedEncodingException {
-        savingPlaceService.save();
+        savingDataMigrationService.save();
     }
 
     @GetMapping("/get/category")
