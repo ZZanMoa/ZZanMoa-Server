@@ -1,15 +1,16 @@
 package zzandori.zzanmoa.subscription.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import zzandori.zzanmoa.bargainboard.entity.BargainBoard;
 import zzandori.zzanmoa.bargainboard.entity.District;
 import zzandori.zzanmoa.bargainboard.repository.DistrictRepository;
 import zzandori.zzanmoa.subscription.dto.SubscriptionDTO;
-import zzandori.zzanmoa.subscription.dto.SubscriptionStatusDTO;
 import zzandori.zzanmoa.subscription.entity.EmailHistory;
 import zzandori.zzanmoa.subscription.entity.Subscription;
 import zzandori.zzanmoa.subscription.repository.EmailHistoryRepository;
@@ -30,23 +31,47 @@ public class SubscriptionService {
     private final EmailHistoryRepository emailHistoryRepository;
 
     @Transactional
-    public SubscriptionStatusDTO subscribe(SubscriptionDTO subscriptionDto) {
+    public ResponseEntity<?> subscribe(SubscriptionDTO subscriptionDto) {
+        StringBuilder resultMessage = new StringBuilder();
         boolean allSavedSuccessfully = true;
 
         for (String districtName : subscriptionDto.getDistrict()) {
-            if (!createSubscription(districtName, subscriptionDto.getName(),subscriptionDto.getEmail())) {
+            ResponseEntity<?> response = processSubscriptionForDistrict(subscriptionDto, districtName);
+            if (!response.getStatusCode().is2xxSuccessful()) {
                 allSavedSuccessfully = false;
+                resultMessage.append((String) response.getBody());
             }
         }
 
-        return SubscriptionStatusDTO.builder()
-            .status(allSavedSuccessfully)
-            .build();
+        return allSavedSuccessfully
+            ? ResponseEntity.ok("All subscriptions created successfully.")
+            : ResponseEntity.badRequest().body(resultMessage.toString());
     }
 
-    private boolean createSubscription(String districtName, String name, String email) {
+    private ResponseEntity<?> processSubscriptionForDistrict(SubscriptionDTO subscriptionDto, String districtName) {
+        District district = districtRepository.findByDistrictName(districtName);
+        if (district == null) {
+            return ResponseEntity.badRequest().body("District name '" + districtName + "' not found. ");
+        }
+
+        if (alreadySubscribe(subscriptionDto.getEmail(), subscriptionDto.getName(), district)) {
+            return ResponseEntity.badRequest().body("Already subscribed to " + districtName + ". ");
+        }
+
+        boolean saved = createSubscription(subscriptionDto.getName(), subscriptionDto.getEmail(), district);
+        return saved
+            ? ResponseEntity.ok("Subscription created successfully for " + districtName + ".")
+            : ResponseEntity.badRequest().body("Failed to create subscription for district: " + districtName + ". ");
+    }
+
+
+    private boolean alreadySubscribe(String email, String name, District district) {
+        List<Subscription> subscriptions = subscriptionRepository.findByEmailAndNameAndDistrict(email, name, district);
+        return !subscriptions.isEmpty();
+    }
+
+    private boolean createSubscription(String name, String email, District district) {
         try {
-            District district = districtRepository.findByDistrictName(districtName);
             Subscription subscription = Subscription.builder()
                 .name(name)
                 .email(email)
@@ -61,7 +86,7 @@ public class SubscriptionService {
 
     public void sendEmail(String to, String subject, String text, Subscription subscription, BargainBoard bargainBoard) {
         if (isEmailAlreadySent(subscription, bargainBoard)) {
-            return; // 중복 이메일 방지
+            return;
         }
         prepareAndSendEmail(to, subject, text, subscription, bargainBoard);
     }

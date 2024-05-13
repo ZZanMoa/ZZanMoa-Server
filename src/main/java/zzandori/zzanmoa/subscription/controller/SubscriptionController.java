@@ -35,8 +35,7 @@ public class SubscriptionController {
             return validatorService.processBindingResultErrors(bindingResult);
         }
 
-        SubscriptionStatusDTO status = subscriptionService.subscribe(subscriptionDto);
-        return ResponseEntity.ok(status);
+        return subscriptionService.subscribe(subscriptionDto);
     }
 
     @PostMapping("/cancel")
