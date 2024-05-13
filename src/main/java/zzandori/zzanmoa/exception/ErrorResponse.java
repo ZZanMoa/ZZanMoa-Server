@@ -12,7 +12,7 @@ public class ErrorResponse {
 
     public ErrorResponse(ErrorCode errorCode) {
         this.statusCode = errorCode.getHttpStatus().value();
-        this.error = errorCode.getHttpStatus().name();
+        this.error = errorCode.name();
         this.message = errorCode.getMessage();
     }
 }
