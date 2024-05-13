@@ -24,7 +24,7 @@ public class EmailScheduler {
     private static final Logger logger = LoggerFactory.getLogger(EmailScheduler.class);
     private static final String SITE_URL = "https://zzanmoa.vercel.app/";
 
-    @Scheduled(cron = "0 0 12 * * ?", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 0 10 * * ?", zone = "Asia/Seoul")
     public void scheduleEmailTasks() {
         LocalDate twoMonthsAgo = LocalDate.now().minusMonths(3);
         List<BargainBoard> recentPosts = findRecentPosts(twoMonthsAgo);
