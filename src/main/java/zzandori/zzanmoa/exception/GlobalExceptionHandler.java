@@ -10,8 +10,8 @@ import zzandori.zzanmoa.test.TestException;
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(TestException.class)
-    protected ResponseEntity<ErrorResponse> handleTestException(TestException ex) {
-        ErrorCode errorCode = ex.getErrorCode();
+    protected ResponseEntity<ErrorResponse> handleTestException(TestException exception) {
+        ErrorCode errorCode = exception.getErrorCode();
         return handleExceptionInternal(errorCode);
     }
 
