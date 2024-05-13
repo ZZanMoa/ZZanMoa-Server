@@ -1,24 +1,25 @@
 package zzandori.zzanmoa.subscription.service;
 
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import zzandori.zzanmoa.exception.subscription.SubscriptionAppException;
+import zzandori.zzanmoa.exception.subscription.SubscriptionErrorCode;
 
 @Service
 @RequiredArgsConstructor
 public class SubscriptionValidationService {
 
-    public ResponseEntity<?> processBindingResultErrors(BindingResult bindingResult){
-        String errorMessages = bindingResult.getAllErrors()
-            .stream()
-            .map(DefaultMessageSourceResolvable::getDefaultMessage)
-            .collect(Collectors.joining(", "));
-        return new ResponseEntity<>(errorMessages, HttpStatus.BAD_REQUEST);
+    public void validate(BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            bindingResult.getAllErrors().forEach(error -> {
+                FieldError fieldError = (FieldError) error;
+                String field = fieldError.getField();
+                String errorCode = fieldError.getDefaultMessage();
+                throw new SubscriptionAppException(SubscriptionErrorCode.valueOf(errorCode));
+            });
+        }
     }
-
 
 }
