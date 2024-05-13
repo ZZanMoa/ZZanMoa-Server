@@ -26,9 +26,20 @@ public class SubscriptionCancelService {
             return ResponseEntity.badRequest().body("해당하는 구독 정보를 찾을 수 없습니다.");
         }
 
+        setNullSubscriptionInEmailHistory(subscriptionList);
+
         subscriptionRepository.deleteAll(subscriptionList);
         return ResponseEntity.ok().body("구독이 성공적으로 취소되었습니다.");
     }
 
 
+    private void setNullSubscriptionInEmailHistory(List<Subscription> subscriptions) {
+        subscriptions.forEach(subscription -> {
+            List<EmailHistory> emailHistories = emailHistoryRepository.findBySubscription(subscription);
+            emailHistories.forEach(emailHistory -> {
+                emailHistory.setSubscription(null);
+                emailHistoryRepository.save(emailHistory);
+            });
+        });
+    }
 }
