@@ -14,7 +14,7 @@ import zzandori.zzanmoa.subscription.dto.SubscriptionDTO;
 import zzandori.zzanmoa.subscription.dto.SubscriptionStatusDTO;
 import zzandori.zzanmoa.subscription.service.EmailScheduler;
 import zzandori.zzanmoa.subscription.service.SubscriptionService;
-import zzandori.zzanmoa.subscription.service.ValidatorService;
+import zzandori.zzanmoa.subscription.service.SubscriptionValidationService;
 
 @Tag(name = "SubscriptionController", description = "서울시 할인 소식 구독하기 기능 컨트롤러")
 @RestController
@@ -22,7 +22,7 @@ import zzandori.zzanmoa.subscription.service.ValidatorService;
 @RequestMapping("/subscription")
 public class SubscriptionController {
 
-    private final ValidatorService validatorService;
+    private final SubscriptionValidationService validatorService;
     private final SubscriptionService subscriptionService;
     private final EmailScheduler emailScheduler;
 

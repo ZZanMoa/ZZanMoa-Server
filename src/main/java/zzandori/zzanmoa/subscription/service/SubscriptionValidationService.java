@@ -10,7 +10,7 @@ import org.springframework.validation.BindingResult;
 
 @Service
 @RequiredArgsConstructor
-public class ValidatorService {
+public class SubscriptionValidationService {
 
     public ResponseEntity<?> processBindingResultErrors(BindingResult bindingResult){
         String errorMessages = bindingResult.getAllErrors()
@@ -19,5 +19,6 @@ public class ValidatorService {
             .collect(Collectors.joining(", "));
         return new ResponseEntity<>(errorMessages, HttpStatus.BAD_REQUEST);
     }
+
 
 }
