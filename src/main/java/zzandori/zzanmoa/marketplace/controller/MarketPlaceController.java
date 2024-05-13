@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import zzandori.zzanmoa.marketplace.dto.MarketPlaceResponseDto;
+import zzandori.zzanmoa.marketplace.service.MarketDataMigrationService;
 import zzandori.zzanmoa.marketplace.service.MarketPlaceService;
 
 @Tag(name = "MarketPlaceController", description = "시장의 가게 정보 응답 컨트롤러")
@@ -17,10 +18,11 @@ import zzandori.zzanmoa.marketplace.service.MarketPlaceService;
 public class MarketPlaceController {
 
     private final MarketPlaceService marketPlaceService;
+    private final MarketDataMigrationService marketDataMigrationService;
 
     @GetMapping("/save")
     public void saveGroceries() {
-        marketPlaceService.saveMarketPlaces();
+        marketDataMigrationService.saveMarketPlaces();
     }
 
     @GetMapping("/get")
