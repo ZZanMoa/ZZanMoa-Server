@@ -1,14 +1,37 @@
 package zzandori.zzanmoa.exception;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import zzandori.zzanmoa.exception.subscription.DistrictDuplicatedErrorResponse;
+import zzandori.zzanmoa.exception.subscription.DistrictForSubscriptionAppException;
 import zzandori.zzanmoa.exception.subscription.SubscriptionAppException;
+import zzandori.zzanmoa.exception.subscription.SubscriptionValidationAppException;
 import zzandori.zzanmoa.test.TestException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+
+    @ExceptionHandler(DistrictForSubscriptionAppException.class)
+    protected ResponseEntity<?> districtForSubscriptionAppExceptionHandler(DistrictForSubscriptionAppException e) {
+        DistrictDuplicatedErrorResponse response = new DistrictDuplicatedErrorResponse(
+            e.getErrorCode(),
+            e.getDistrictName()
+        );
+
+        return ResponseEntity
+            .status(e.getErrorCode().getHttpStatus())
+            .body(response);
+    }
+
+    @ExceptionHandler(SubscriptionValidationAppException.class)
+    protected ResponseEntity<?> SubscriptionValidationAppExceptionHandler(SubscriptionValidationAppException e){
+        ErrorCode errorCode = e.getErrorCode();
+        return handleExceptionInternal(errorCode);
+    }
 
     @ExceptionHandler(SubscriptionAppException.class)
     protected ResponseEntity<?> SubscriptionAppExceptionHandler(SubscriptionAppException e){

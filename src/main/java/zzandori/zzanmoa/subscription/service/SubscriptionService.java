@@ -1,9 +1,7 @@
 package zzandori.zzanmoa.subscription.service;
 
 import java.time.LocalDateTime;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -13,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 import zzandori.zzanmoa.bargainboard.entity.BargainBoard;
 import zzandori.zzanmoa.bargainboard.entity.District;
 import zzandori.zzanmoa.bargainboard.repository.DistrictRepository;
+import zzandori.zzanmoa.common.dto.SuccessResponseDTO;
+import zzandori.zzanmoa.exception.subscription.DistrictForSubscriptionAppException;
 import zzandori.zzanmoa.exception.subscription.SubscriptionAppException;
 import zzandori.zzanmoa.exception.subscription.SubscriptionErrorCode;
 import zzandori.zzanmoa.subscription.dto.SubscriptionDTO;
@@ -37,32 +37,25 @@ public class SubscriptionService {
 
     @Transactional
     public ResponseEntity<?> subscribe(SubscriptionDTO subscriptionDto) {
-        Map<String, Object> results = new LinkedHashMap<>();
-        boolean allSuccess = true;
-
         for (String districtName : subscriptionDto.getDistrict()) {
-            try {
-                processSubscriptionForDistrict(subscriptionDto, districtName);
-                results.put(districtName, Map.of("status", HttpStatus.OK, "message", "구독 성공"));
-            } catch (SubscriptionAppException e) {
-                allSuccess = false;
-                results.put(districtName, Map.of("status", e.getErrorCode().getHttpStatus(), "message", e.getMessage()));
-            }
+            processSubscriptionForDistrict(subscriptionDto, districtName);
         }
 
-        HttpStatus overallStatus = allSuccess ? HttpStatus.CREATED : HttpStatus.PARTIAL_CONTENT;
-        return new ResponseEntity<>(results, overallStatus);
+        return ResponseEntity.ok().body(SuccessResponseDTO.builder()
+            .statusCode(HttpStatus.OK.value())
+            .message("구독하기 성공")
+            .build());
     }
 
 
     private void processSubscriptionForDistrict(SubscriptionDTO subscriptionDto, String districtName) {
         District district = districtRepository.findByDistrictName(districtName);
         if (district == null) {
-            throw new SubscriptionAppException(SubscriptionErrorCode.DISTRICT_NOT_FOUND);
+            throw new DistrictForSubscriptionAppException(SubscriptionErrorCode.DISTRICT_NOT_FOUND, districtName);
         }
 
         if (alreadySubscribe(subscriptionDto.getEmail(), subscriptionDto.getName(), district)) {
-            throw new SubscriptionAppException(SubscriptionErrorCode.SUBSCRIPTION_DUPLICATED);
+            throw new DistrictForSubscriptionAppException(SubscriptionErrorCode.SUBSCRIPTION_DUPLICATED, districtName);
         }
 
         boolean saved = createSubscription(subscriptionDto.getName(), subscriptionDto.getEmail(), district);
