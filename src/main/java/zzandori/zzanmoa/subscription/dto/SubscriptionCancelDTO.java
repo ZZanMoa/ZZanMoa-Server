@@ -15,9 +15,6 @@ import lombok.ToString;
 @ToString
 public class SubscriptionCancelDTO {
 
-    @NotBlank(message = "NAME_IS_EMPTY")
-    private String name;
-
     @NotBlank(message = "EMAIL_IS_EMPTY")
     @Pattern(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+.[A-Za-z]{2,6}$", message = "EMAIL_FORMAT_FAILED")
     private String email;
