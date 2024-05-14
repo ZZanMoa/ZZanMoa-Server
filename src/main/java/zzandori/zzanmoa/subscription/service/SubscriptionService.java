@@ -1,6 +1,7 @@
 package zzandori.zzanmoa.subscription.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,8 +38,24 @@ public class SubscriptionService {
 
     @Transactional
     public ResponseEntity<?> subscribe(SubscriptionDTO subscriptionDto) {
-        for (String districtName : subscriptionDto.getDistrict()) {
-            processSubscriptionForDistrict(subscriptionDto, districtName);
+        List<String> duplicatedDistricts = new ArrayList<>();
+        List<String> notFoundDistricts = new ArrayList<>();
+        List<String> errorMessages = new ArrayList<>();
+
+        validateDistricts(subscriptionDto, duplicatedDistricts, notFoundDistricts);
+
+        if (!duplicatedDistricts.isEmpty()) {
+            throw new DistrictForSubscriptionAppException(SubscriptionErrorCode.SUBSCRIPTION_DUPLICATED, duplicatedDistricts);
+        }
+
+        if (!notFoundDistricts.isEmpty()) {
+            throw new DistrictForSubscriptionAppException(SubscriptionErrorCode.DISTRICT_NOT_FOUND, notFoundDistricts);
+        }
+
+        processSubscriptions(subscriptionDto, errorMessages);
+
+        if (!errorMessages.isEmpty()) {
+            throw new SubscriptionAppException(SubscriptionErrorCode.SAVE_DATA_FAILED);
         }
 
         return ResponseEntity.ok().body(SuccessResponseDTO.builder()
@@ -47,37 +64,42 @@ public class SubscriptionService {
             .build());
     }
 
-
-    private void processSubscriptionForDistrict(SubscriptionDTO subscriptionDto, String districtName) {
-        District district = districtRepository.findByDistrictName(districtName);
-        if (district == null) {
-            throw new SubscriptionAppException(SubscriptionErrorCode.DISTRICT_NOT_FOUND);
-        }
-
-        if (alreadySubscribe(subscriptionDto.getEmail(), subscriptionDto.getName(), district)) {
-            throw new DistrictForSubscriptionAppException(SubscriptionErrorCode.SUBSCRIPTION_DUPLICATED, districtName);
-        }
-
-        boolean saved = createSubscription(subscriptionDto.getName(), subscriptionDto.getEmail(), district);
-        if (!saved) {
-            throw new SubscriptionAppException(SubscriptionErrorCode.SAVE_DATA_FAILED);
+    private void validateDistricts(SubscriptionDTO subscriptionDto, List<String> duplicatedDistricts, List<String> notFoundDistricts) {
+        for (String districtName : subscriptionDto.getDistrict()) {
+            District district = districtRepository.findByDistrictName(districtName);
+            if (district == null) {
+                notFoundDistricts.add(districtName);
+                continue;
+            }
+            if (alreadySubscribe(subscriptionDto.getEmail(), subscriptionDto.getName(), district)) {
+                duplicatedDistricts.add(districtName);
+            }
         }
     }
 
+    private void processSubscriptions(SubscriptionDTO subscriptionDto, List<String> errorMessages) {
+        for (String districtName : subscriptionDto.getDistrict()) {
+            try {
+                District district = districtRepository.findByDistrictName(districtName);
+                createSubscription(subscriptionDto.getName(), subscriptionDto.getEmail(), district);
+            } catch (SubscriptionAppException e) {
+                errorMessages.add(e.getMessage());
+            }
+        }
+    }
 
     private boolean alreadySubscribe(String email, String name, District district) {
         List<Subscription> subscriptions = subscriptionRepository.findByEmailAndNameAndDistrict(email, name, district);
         return !subscriptions.isEmpty();
     }
 
-    private boolean createSubscription(String name, String email, District district) {
+    private void createSubscription(String name, String email, District district) {
         Subscription subscription = Subscription.builder()
             .name(name)
             .email(email)
             .district(district)
             .build();
         subscriptionRepository.save(subscription);
-        return true;
     }
 
     public void sendEmail(String to, String subject, String text, Subscription subscription, BargainBoard bargainBoard) {

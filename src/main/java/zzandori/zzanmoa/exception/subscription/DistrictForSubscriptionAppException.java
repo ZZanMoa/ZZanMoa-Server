@@ -1,5 +1,6 @@
 package zzandori.zzanmoa.exception.subscription;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -7,5 +8,5 @@ import lombok.Getter;
 @Getter
 public class DistrictForSubscriptionAppException extends RuntimeException{
     private final SubscriptionErrorCode errorCode;
-    private final String districtName;
+    private final List<String> districtName;
 }
