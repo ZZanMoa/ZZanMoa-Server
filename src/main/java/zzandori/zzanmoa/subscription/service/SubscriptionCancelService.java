@@ -40,8 +40,7 @@ public class SubscriptionCancelService {
     }
 
     private List<Subscription> findSubscriptions(SubscriptionCancelDTO subscriptionCancelDTO){
-        return subscriptionRepository.findByEmailAndName(subscriptionCancelDTO.getEmail(),
-            subscriptionCancelDTO.getName());
+        return subscriptionRepository.findByEmail(subscriptionCancelDTO.getEmail());
     }
 
     private void deleteSubscriptions(List<Subscription> subscriptions) {

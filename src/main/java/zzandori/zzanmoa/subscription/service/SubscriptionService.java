@@ -71,7 +71,7 @@ public class SubscriptionService {
                 notFoundDistricts.add(districtName);
                 continue;
             }
-            if (alreadySubscribe(subscriptionDto.getEmail(), subscriptionDto.getName(), district)) {
+            if (alreadySubscribe(subscriptionDto.getEmail(), district)) {
                 duplicatedDistricts.add(districtName);
             }
         }
@@ -81,21 +81,20 @@ public class SubscriptionService {
         for (String districtName : subscriptionDto.getDistrict()) {
             try {
                 District district = districtRepository.findByDistrictName(districtName);
-                createSubscription(subscriptionDto.getName(), subscriptionDto.getEmail(), district);
+                createSubscription(subscriptionDto.getEmail(), district);
             } catch (SubscriptionAppException e) {
                 errorMessages.add(e.getMessage());
             }
         }
     }
 
-    private boolean alreadySubscribe(String email, String name, District district) {
-        List<Subscription> subscriptions = subscriptionRepository.findByEmailAndNameAndDistrict(email, name, district);
+    private boolean alreadySubscribe(String email,District district) {
+        List<Subscription> subscriptions = subscriptionRepository.findByEmailAndDistrict(email, district);
         return !subscriptions.isEmpty();
     }
 
-    private void createSubscription(String name, String email, District district) {
+    private void createSubscription(String email, District district) {
         Subscription subscription = Subscription.builder()
-            .name(name)
             .email(email)
             .district(district)
             .build();
