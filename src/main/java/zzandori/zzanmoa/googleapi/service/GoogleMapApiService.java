@@ -43,8 +43,8 @@ public class GoogleMapApiService {
 
         return responseMono.flatMap(dto -> {
             return Mono.justOrEmpty(Optional.ofNullable(dto.getCandidates())
-                .filter(formattedAddresses -> !formattedAddresses.isEmpty())
-                .map(formattedAddresses -> formattedAddresses.get(0)));
+                .filter(candidates -> !candidates.isEmpty())
+                .map(candidates -> candidates.get(0)));
         }).block();
     }
 

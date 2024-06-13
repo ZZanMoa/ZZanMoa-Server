@@ -19,7 +19,7 @@ public class FindPlaceRequest {
         StringBuilder urlBuilder = new StringBuilder(GOOGLE_MAP_API_FINDPLACE_BASE_URL)
             .append("?input=").append(encodedAddress)
             .append("&inputtype=").append("textquery")
-            .append("&fields=").append("formatted_address")
+            .append("&fields=").append("formatted_address").append("%2C").append("place_id")
             .append("&key=").append(GOOGLE_MAP_API_KEY);
         return urlBuilder.toString();
     }
