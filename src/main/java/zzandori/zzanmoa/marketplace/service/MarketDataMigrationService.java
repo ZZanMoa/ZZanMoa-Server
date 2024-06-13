@@ -2,6 +2,7 @@ package zzandori.zzanmoa.marketplace.service;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,8 @@ import zzandori.zzanmoa.googleapi.service.GoogleMapApiService;
 import zzandori.zzanmoa.market.entity.Market;
 import zzandori.zzanmoa.market.repository.MarketRepository;
 import zzandori.zzanmoa.marketplace.entity.MarketPlace;
+import zzandori.zzanmoa.marketplace.entity.MarketPlaceGoogleIds;
+import zzandori.zzanmoa.marketplace.repository.MarketPlaceGoogleIdsRepository;
 import zzandori.zzanmoa.marketplace.repository.MarketPlaceRepository;
 
 @RequiredArgsConstructor
@@ -21,6 +24,7 @@ public class MarketDataMigrationService {
 
     private final MarketRepository marketRepository;
     private final MarketPlaceRepository marketPlaceRepository;
+    private final MarketPlaceGoogleIdsRepository marketPlaceGoogleIdsRepository;
     private final GoogleMapApiService googleMapApiService;
 
 
@@ -29,34 +33,48 @@ public class MarketDataMigrationService {
         markets.stream().collect(Collectors.toMap(Market::getMarketId, Function.identity(),
             (existing, replacement) -> existing)).values().forEach(market -> {
             try {
-                saveMarketPlace(market);
+                saveMarketPlaceAndGoogleIds(market);
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
         });
     }
 
-    private void saveMarketPlace(Market market) throws UnsupportedEncodingException {
-        Candidate candidate = googleMapApiService.requestFindPlace(market.getMarketName());
-        String formattedAddress = candidate != null ? candidate.getFormatted_address() : null;
+    public void saveMarketPlaceAndGoogleIds(Market market) throws UnsupportedEncodingException {
+        Optional<Candidate> candidateOptional = Optional.ofNullable(googleMapApiService.requestFindPlace(market.getMarketName()));
+
+        String formattedAddress = candidateOptional.map(Candidate::getFormatted_address).orElse(null);
+        String placeId = candidateOptional.map(Candidate::getPlace_id).orElse(null);
 
         Location location = getLocationFromAddress(formattedAddress);
 
         MarketPlace marketPlace = buildMarketPlace(market, formattedAddress, location);
-        marketPlaceRepository.save(marketPlace);
+        MarketPlace savedMarketPlace = marketPlaceRepository.save(marketPlace);
+
+        MarketPlaceGoogleIds marketPlaceGoogleIds = buildMarketPlaceGoogleIds(placeId, savedMarketPlace);
+        marketPlaceGoogleIdsRepository.save(marketPlaceGoogleIds);
     }
 
     private Location getLocationFromAddress(String address) throws UnsupportedEncodingException {
         return address != null ? googleMapApiService.requestGeocode(address) : null;
     }
 
-    private MarketPlace buildMarketPlace(Market market, String formattedAddress, Location location) {
+    private MarketPlace buildMarketPlace(Market market, String formattedAddress,
+        Location location) {
         return MarketPlace.builder()
             .marketId(market.getMarketId())
             .marketName(market.getMarketName())
             .marketAddress(formattedAddress)
             .latitude(location != null ? location.getLat() : null)
             .longitude(location != null ? location.getLng() : null)
+            .build();
+    }
+
+    private MarketPlaceGoogleIds buildMarketPlaceGoogleIds(String placeId,
+        MarketPlace marketPlace) {
+        return MarketPlaceGoogleIds.builder()
+            .placeId(placeId)
+            .marketPlace(marketPlace)
             .build();
     }
 
