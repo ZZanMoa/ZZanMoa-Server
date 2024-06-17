@@ -39,8 +39,7 @@ public class MarketPlaceController {
     }
 
     @GetMapping("/review/{marketId}")
-    public ResponseEntity<ApiResponse<?>> getReviews(@PathVariable String marketId)
-        throws UnsupportedEncodingException {
+    public ResponseEntity<ApiResponse<?>> getReviews(@PathVariable String marketId) {
         MarketPlaceReviewResponseDto marketPlaceReviewResponseDto = marketPlaceService.getReviews(
             marketId);
 

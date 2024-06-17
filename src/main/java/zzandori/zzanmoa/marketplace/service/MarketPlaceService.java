@@ -1,16 +1,14 @@
 package zzandori.zzanmoa.marketplace.service;
 
-import java.io.UnsupportedEncodingException;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import zzandori.zzanmoa.googleapi.dto.review.ReviewResponse;
 import zzandori.zzanmoa.googleapi.service.GoogleMapApiService;
 import zzandori.zzanmoa.marketplace.dto.MarketPlaceResponseDto;
 import zzandori.zzanmoa.marketplace.dto.MarketPlaceReviewResponseDto;
 import zzandori.zzanmoa.marketplace.entity.MarketPlace;
-import zzandori.zzanmoa.marketplace.entity.MarketPlaceGoogleIds;
 import zzandori.zzanmoa.marketplace.repository.MarketPlaceGoogleIdsRepository;
 import zzandori.zzanmoa.marketplace.repository.MarketPlaceRepository;
 
@@ -37,18 +35,19 @@ public class MarketPlaceService {
             .collect(Collectors.toList());
     }
 
-    public MarketPlaceReviewResponseDto getReviews(String marketId)
-        throws UnsupportedEncodingException {
-        Optional<String> placeId = marketPlaceGoogleIdsRepository.findByMarketId(marketId);
-        if (placeId.isPresent()) {
-            List<String> reviews = googleMapApiService.requestReview(placeId.get()).stream().map(review -> review.getText())
-                .toList();
-            return MarketPlaceReviewResponseDto.builder()
-                .reviews(reviews)
-                .build();
-        }
-
-        return null;
+    public MarketPlaceReviewResponseDto getReviews(String marketId){
+        return marketPlaceGoogleIdsRepository.findByMarketId(marketId)
+            .map(placeId -> {
+                ReviewResponse reviewResponse = googleMapApiService.requestReview(placeId);
+                List<String> reviews = reviewResponse.getResult().getReviews().stream()
+                    .map(review -> review.getText())
+                    .collect(Collectors.toList());
+                return MarketPlaceReviewResponseDto.builder()
+                    .reviews(reviews)
+                    .build();
+            })
+            .orElse(null);
     }
+
 
 }
