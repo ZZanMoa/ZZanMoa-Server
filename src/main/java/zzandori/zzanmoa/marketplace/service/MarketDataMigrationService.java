@@ -47,6 +47,8 @@ public class MarketDataMigrationService {
         if (!candidates.isEmpty()) {
             Candidate candidate = candidates.get(0);
             String formattedAddress = candidate.getFormatted_address();
+            String placeId = candidate.getPlace_id();
+
             Optional<GeocodeResponse> geocodeResponse = Optional.ofNullable(
                 googleMapApiService.requestGeocode(formattedAddress)
             );
@@ -55,17 +57,11 @@ public class MarketDataMigrationService {
                 .filter(results -> !results.isEmpty())
                 .map(results -> results.get(0).getGeometry().getLocation());
 
-            Optional<String> placeId = geocodeResponse.map(GeocodeResponse::getResults)
-                .filter(results -> !results.isEmpty())
-                .map(results -> results.get(0).getPlace_id());
-
             MarketPlace marketPlace = buildMarketPlace(market, formattedAddress, location.orElse(null));
             marketPlaceRepository.save(marketPlace);
 
-            placeId.ifPresent(id -> {
-                MarketPlaceGoogleIds marketPlaceGoogleIds = buildMarketPlaceGoogleIds(id, marketPlace);
-                marketPlaceGoogleIdsRepository.save(marketPlaceGoogleIds);
-            });
+            MarketPlaceGoogleIds marketPlaceGoogleIds = buildMarketPlaceGoogleIds(placeId, marketPlace);
+            marketPlaceGoogleIdsRepository.save(marketPlaceGoogleIds);
         }
     }
 

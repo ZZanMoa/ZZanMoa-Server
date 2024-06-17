@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import zzandori.zzanmoa.googleapi.dto.findplace.Candidate;
+import zzandori.zzanmoa.googleapi.dto.findplace.FindPlaceResponse;
 import zzandori.zzanmoa.googleapi.dto.geometry.GeocodeResponse;
 import zzandori.zzanmoa.googleapi.dto.geometry.Location;
 import zzandori.zzanmoa.googleapi.dto.geometry.Result;
@@ -29,24 +31,22 @@ public class SavingDataMigrationService {
     private final SavingStoreGoogleIdsRepository savingStoreGoogleIdsRepository;
     private final GoogleMapApiService googleMapApiService;
 
-
     public void save() {
         List<ThriftStore> thriftStores = thriftStoreRepository.findAll();
         Map<String, SavingStore> storeMap = new HashMap<>();
-        Map<String, String> placeIdMap = new HashMap<>();
 
-        thriftStores.forEach(thriftStore -> processThriftStore(thriftStore, storeMap, placeIdMap));
+        thriftStores.forEach(thriftStore -> processThriftStore(thriftStore, storeMap));
 
-        persistStoresAndItems(storeMap, placeIdMap);
+        storeMap.values().forEach(savingStore -> persistStoresAndItems(savingStore));
     }
 
-    private void processThriftStore(ThriftStore thriftStore, Map<String, SavingStore> storeMap, Map<String, String> placeIdMap) {
+    private void processThriftStore(ThriftStore thriftStore, Map<String, SavingStore> storeMap) {
         if (thriftStore.getAddress().isEmpty()) {
             return;
         }
 
         storeMap.computeIfAbsent(thriftStore.getStoreId(), k -> {
-            return createAndMapSavingStore(thriftStore, placeIdMap);
+            return createAndMapSavingStore(thriftStore);
         });
 
         if (thriftStore.getPrice() != 0) {
@@ -54,13 +54,10 @@ public class SavingDataMigrationService {
         }
     }
 
-    private SavingStore createAndMapSavingStore(ThriftStore thriftStore, Map<String, String> placeIdMap) {
+    private SavingStore createAndMapSavingStore(ThriftStore thriftStore) {
         GeocodeResponse geocodeResponse = googleMapApiService.requestGeocode(
             thriftStore.getAddress());
         Result result = geocodeResponse.getResults().get(0);
-
-        String placeId = result.getPlace_id();
-        placeIdMap.put(thriftStore.getStoreId(), placeId);
 
         Location location = result.getGeometry().getLocation();
         return SavingStore.builder()
@@ -85,12 +82,23 @@ public class SavingDataMigrationService {
         savingStore.getItems().add(savingItem);
     }
 
-    private void persistStoresAndItems(Map<String, SavingStore> storeMap, Map<String, String> placeIdMap) {
-        storeMap.values().forEach(savingStore -> {
-            savingStoreRepository.save(savingStore);
-            savingStoreGoogleIdsRepository.save(buildSavingStoreGoogleIds(placeIdMap.get(savingStore.getStoreId()), savingStore));
-            savingItemRepository.saveAll(savingStore.getItems());
-        });
+    private void persistStoresAndItems(SavingStore savingStore) {
+        savingStoreRepository.save(savingStore);
+        savingStoreGoogleIdsRepository.save(buildSavingStoreGoogleIds(
+            getGooglePlaceId(savingStore.getAddress(), savingStore.getStoreName()), savingStore));
+        savingItemRepository.saveAll(savingStore.getItems());
+    }
+
+    private String getGooglePlaceId(String address, String storeName) {
+        FindPlaceResponse findPlaceResponse = googleMapApiService.requestFindPlace(address + " " + storeName);
+        List<Candidate> candidates = findPlaceResponse.getCandidates();
+
+        if (!candidates.isEmpty()) {
+            Candidate candidate = candidates.get(0);
+            return candidate.getPlace_id();
+        }
+
+        return null;
     }
 
     private SavingStoreGoogleIds buildSavingStoreGoogleIds(String placeId,
