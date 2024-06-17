@@ -1,4 +1,4 @@
-package zzandori.zzanmoa.googleapi.dto;
+package zzandori.zzanmoa.googleapi.dto.geometry;
 
 import java.util.List;
 import lombok.Getter;

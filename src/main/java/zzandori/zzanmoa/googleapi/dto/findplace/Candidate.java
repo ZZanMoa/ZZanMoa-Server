@@ -1,4 +1,4 @@
-package zzandori.zzanmoa.googleapi.dto;
+package zzandori.zzanmoa.googleapi.dto.findplace;
 
 import lombok.Getter;
 
