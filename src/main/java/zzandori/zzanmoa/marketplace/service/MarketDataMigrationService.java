@@ -36,35 +36,39 @@ public class MarketDataMigrationService {
         List<Market> markets = marketRepository.findAll();
         markets.stream().collect(Collectors.toMap(Market::getMarketId, Function.identity(),
             (existing, replacement) -> existing)).values().forEach(market -> {
-            saveMarketPlace(market);
+            saveMarketPlaceAndGoogleIds(market);
         });
     }
 
-    public void saveMarketPlace(Market market) {
-        FindPlaceResponse findPlaceResponse = googleMapApiService.requestFindPlace(
-            market.getMarketName());
+    public void saveMarketPlaceAndGoogleIds(Market market) {
+        FindPlaceResponse findPlaceResponse = googleMapApiService.requestFindPlace(market.getMarketName());
         List<Candidate> candidates = findPlaceResponse.getCandidates();
 
-        String formattedAddress = null;
-        List<Result> results = null;
-        if(candidates.size() > 0) {
-            Candidate candidate = findPlaceResponse.getCandidates().get(0);
-            formattedAddress = candidate.getFormatted_address();
-            GeocodeResponse geocodeResponse = googleMapApiService.requestGeocode(formattedAddress);
-            results = geocodeResponse.getResults();
+        if (!candidates.isEmpty()) {
+            Candidate candidate = candidates.get(0);
+            String formattedAddress = candidate.getFormatted_address();
+            Optional<GeocodeResponse> geocodeResponse = Optional.ofNullable(
+                googleMapApiService.requestGeocode(formattedAddress)
+            );
+
+            Optional<Location> location = geocodeResponse.map(GeocodeResponse::getResults)
+                .filter(results -> !results.isEmpty())
+                .map(results -> results.get(0).getGeometry().getLocation());
+
+            Optional<String> placeId = geocodeResponse.map(GeocodeResponse::getResults)
+                .filter(results -> !results.isEmpty())
+                .map(results -> results.get(0).getPlace_id());
+
+            MarketPlace marketPlace = buildMarketPlace(market, formattedAddress, location.orElse(null));
+            marketPlaceRepository.save(marketPlace);
+
+            placeId.ifPresent(id -> {
+                MarketPlaceGoogleIds marketPlaceGoogleIds = buildMarketPlaceGoogleIds(id, marketPlace);
+                marketPlaceGoogleIdsRepository.save(marketPlaceGoogleIds);
+            });
         }
-
-
-        Location location = results != null ? results.get(0).getGeometry().getLocation() : null;
-        String placeId = results != null ? results.get(0).getPlace_id() : null;
-
-        MarketPlace marketPlace = buildMarketPlace(market, formattedAddress, location);
-        marketPlaceRepository.save(marketPlace);
-
-        MarketPlaceGoogleIds marketPlaceGoogleIds = buildMarketPlaceGoogleIds(placeId, marketPlace);
-        marketPlaceGoogleIdsRepository.save(marketPlaceGoogleIds);
-
     }
+
 
     private MarketPlace buildMarketPlace(Market market, String formattedAddress,
         Location location) {
