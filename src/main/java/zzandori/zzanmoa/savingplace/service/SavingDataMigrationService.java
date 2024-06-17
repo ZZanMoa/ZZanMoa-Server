@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import zzandori.zzanmoa.googleapi.dto.Location;
+import zzandori.zzanmoa.googleapi.dto.geometry.Location;
 import zzandori.zzanmoa.googleapi.service.GoogleMapApiService;
 import zzandori.zzanmoa.savingplace.entity.SavingItem;
 import zzandori.zzanmoa.savingplace.entity.SavingStore;
