@@ -40,10 +40,11 @@ public class MarketPlaceController {
 
     @GetMapping("/review/{marketId}")
     public ResponseEntity<ApiResponse<?>> getReviews(@PathVariable String marketId) {
-        MarketPlaceReviewResponseDto marketPlaceReviewResponseDto = marketPlaceService.getReviews(
+        MarketPlaceReviewResponseDto marketPlaceReviewResponseDto = marketPlaceService.buildMarketPlaceReviewResponse(
             marketId);
+        List<String> reviews = marketPlaceReviewResponseDto.getReviews();
 
-        if (marketPlaceReviewResponseDto == null) {
+        if (reviews == null) {
             return ResponseEntity.ok(ApiResponse.builder()
                 .statusCode(HttpStatus.NO_CONTENT.value())
                 .message("리뷰가 존재하지 않습니다.")
@@ -51,9 +52,9 @@ public class MarketPlaceController {
         }
 
         return ResponseEntity.ok(ApiResponse.builder()
-            .statusCode(HttpStatus.NO_CONTENT.value())
+            .statusCode(HttpStatus.OK.value())
             .message("리뷰를 불러오는 데 성공하였습니다.")
-            .data(marketPlaceReviewResponseDto)
+            .data(reviews)
             .build());
     }
 

@@ -1,5 +1,6 @@
 package zzandori.zzanmoa.marketplace.service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -35,16 +36,27 @@ public class MarketPlaceService {
             .collect(Collectors.toList());
     }
 
-    public MarketPlaceReviewResponseDto getReviews(String marketId){
+    public MarketPlaceReviewResponseDto buildMarketPlaceReviewResponse(String marketId) {
+        return MarketPlaceReviewResponseDto.builder()
+            .reviews(getReviews(marketId))
+            .build();
+    }
+
+    public List<String> getReviews(String marketId){
+        System.out.println("enter");
         return marketPlaceGoogleIdsRepository.findByMarketId(marketId)
             .map(placeId -> {
                 ReviewResponse reviewResponse = googleMapApiService.requestReview(placeId);
+                if (reviewResponse.getResult() == null || reviewResponse.getResult().getReviews() == null) {
+                    System.out.println("null");
+                    return null;
+                }
                 List<String> reviews = reviewResponse.getResult().getReviews().stream()
                     .map(review -> review.getText())
                     .collect(Collectors.toList());
-                return MarketPlaceReviewResponseDto.builder()
-                    .reviews(reviews)
-                    .build();
+                System.out.println(
+                    "Arrays.toString(reviews.toArray()) = " + Arrays.toString(reviews.toArray()));
+                return reviews;
             })
             .orElse(null);
     }
