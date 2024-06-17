@@ -28,7 +28,7 @@ public class MarketPlaceGoogleIds {
     private String placeId;
 
     @OneToOne
-    @JoinColumn(name = "market_place_id")
+    @JoinColumn(name = "market_id", referencedColumnName = "market_id")
     private MarketPlace marketPlace;
 
     @Builder

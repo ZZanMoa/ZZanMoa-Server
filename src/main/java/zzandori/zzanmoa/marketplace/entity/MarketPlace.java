@@ -21,7 +21,7 @@ public class MarketPlace {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "market_id")
+    @Column(name = "market_id", unique = true)
     private String marketId;
 
     @Column(name = "market_name")
