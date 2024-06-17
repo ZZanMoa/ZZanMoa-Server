@@ -7,9 +7,17 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
-@Entity(name = "saving_store_google_ids")
+@Table(name = "saving_store_google_ids")
+@Getter
+@Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SavingStoreGoogleIds {
 
     @Id
@@ -20,7 +28,7 @@ public class SavingStoreGoogleIds {
     private String placeId;
 
     @OneToOne
-    @JoinColumn(name = "saving_store_id", referencedColumnName = "store_id")
+    @JoinColumn(name = "store_id", referencedColumnName = "store_id")
     private SavingStore savingStore;
 
     @Builder
