@@ -7,6 +7,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import zzandori.zzanmoa.exception.subscription.DistrictDuplicatedErrorResponse;
 import zzandori.zzanmoa.exception.subscription.DistrictForSubscriptionAppException;
 import zzandori.zzanmoa.exception.subscription.SubscriptionAppException;
+import zzandori.zzanmoa.googleapi.exception.GoogleApiException;
 import zzandori.zzanmoa.test.TestException;
 
 @RestControllerAdvice
@@ -26,6 +27,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(SubscriptionAppException.class)
     protected ResponseEntity<?> SubscriptionAppExceptionHandler(SubscriptionAppException e){
+        ErrorCode errorCode = e.getErrorCode();
+        return handleExceptionInternal(errorCode);
+    }
+
+    @ExceptionHandler(GoogleApiException.class)
+    protected ResponseEntity<?> GoogleApiExceptionHandler(GoogleApiException e){
         ErrorCode errorCode = e.getErrorCode();
         return handleExceptionInternal(errorCode);
     }

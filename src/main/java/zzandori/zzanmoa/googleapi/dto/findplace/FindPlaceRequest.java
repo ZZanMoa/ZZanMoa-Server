@@ -5,6 +5,8 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import zzandori.zzanmoa.googleapi.exception.GoogleApiErrorCode;
+import zzandori.zzanmoa.googleapi.exception.GoogleApiException;
 
 @Configuration
 public class FindPlaceRequest {
@@ -14,8 +16,13 @@ public class FindPlaceRequest {
     @Value("${GOOGLE_MAP_API_KEY}")
     private String GOOGLE_MAP_API_KEY;
 
-    public String requestUrl(String address) throws UnsupportedEncodingException {
-        String encodedAddress = URLEncoder.encode(address, StandardCharsets.UTF_8.toString());
+    public String requestUrl(String address) {
+        String encodedAddress = null;
+        try {
+            encodedAddress = URLEncoder.encode(address, StandardCharsets.UTF_8.toString());
+        } catch (UnsupportedEncodingException e) {
+            throw new GoogleApiException(GoogleApiErrorCode.UNSUPPORTED_ENCODING);
+        }
         StringBuilder urlBuilder = new StringBuilder(GOOGLE_MAP_API_FINDPLACE_BASE_URL)
             .append("?input=").append(encodedAddress)
             .append("&inputtype=").append("textquery")
