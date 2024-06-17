@@ -2,16 +2,23 @@ package zzandori.zzanmoa.marketplace.service;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import zzandori.zzanmoa.googleapi.dto.Candidate;
-import zzandori.zzanmoa.googleapi.dto.Location;
+import zzandori.zzanmoa.googleapi.dto.findplace.Candidate;
+import zzandori.zzanmoa.googleapi.dto.findplace.FindPlaceResponse;
+import zzandori.zzanmoa.googleapi.dto.geometry.GeocodeResponse;
+import zzandori.zzanmoa.googleapi.dto.geometry.Geometry;
+import zzandori.zzanmoa.googleapi.dto.geometry.Location;
+import zzandori.zzanmoa.googleapi.dto.geometry.Result;
 import zzandori.zzanmoa.googleapi.service.GoogleMapApiService;
 import zzandori.zzanmoa.market.entity.Market;
 import zzandori.zzanmoa.market.repository.MarketRepository;
 import zzandori.zzanmoa.marketplace.entity.MarketPlace;
+import zzandori.zzanmoa.marketplace.entity.MarketPlaceGoogleIds;
+import zzandori.zzanmoa.marketplace.repository.MarketPlaceGoogleIdsRepository;
 import zzandori.zzanmoa.marketplace.repository.MarketPlaceRepository;
 
 @RequiredArgsConstructor
@@ -21,6 +28,7 @@ public class MarketDataMigrationService {
 
     private final MarketRepository marketRepository;
     private final MarketPlaceRepository marketPlaceRepository;
+    private final MarketPlaceGoogleIdsRepository marketPlaceGoogleIdsRepository;
     private final GoogleMapApiService googleMapApiService;
 
 
@@ -28,35 +36,52 @@ public class MarketDataMigrationService {
         List<Market> markets = marketRepository.findAll();
         markets.stream().collect(Collectors.toMap(Market::getMarketId, Function.identity(),
             (existing, replacement) -> existing)).values().forEach(market -> {
-            try {
-                saveMarketPlace(market);
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
+            saveMarketPlaceAndGoogleIds(market);
         });
     }
 
-    private void saveMarketPlace(Market market) throws UnsupportedEncodingException {
-        Candidate candidate = googleMapApiService.requestFindPlace(market.getMarketName());
-        String formattedAddress = candidate != null ? candidate.getFormatted_address() : null;
+    public void saveMarketPlaceAndGoogleIds(Market market) {
+        FindPlaceResponse findPlaceResponse = googleMapApiService.requestFindPlace(market.getMarketName());
+        List<Candidate> candidates = findPlaceResponse.getCandidates();
 
-        Location location = getLocationFromAddress(formattedAddress);
+        if (!candidates.isEmpty()) {
+            Candidate candidate = candidates.get(0);
+            String formattedAddress = candidate.getFormatted_address();
+            String placeId = candidate.getPlace_id();
 
-        MarketPlace marketPlace = buildMarketPlace(market, formattedAddress, location);
-        marketPlaceRepository.save(marketPlace);
+            Optional<GeocodeResponse> geocodeResponse = Optional.ofNullable(
+                googleMapApiService.requestGeocode(formattedAddress)
+            );
+
+            Optional<Location> location = geocodeResponse.map(GeocodeResponse::getResults)
+                .filter(results -> !results.isEmpty())
+                .map(results -> results.get(0).getGeometry().getLocation());
+
+            MarketPlace marketPlace = buildMarketPlace(market, formattedAddress, location.orElse(null));
+            marketPlaceRepository.save(marketPlace);
+
+            MarketPlaceGoogleIds marketPlaceGoogleIds = buildMarketPlaceGoogleIds(placeId, marketPlace);
+            marketPlaceGoogleIdsRepository.save(marketPlaceGoogleIds);
+        }
     }
 
-    private Location getLocationFromAddress(String address) throws UnsupportedEncodingException {
-        return address != null ? googleMapApiService.requestGeocode(address) : null;
-    }
 
-    private MarketPlace buildMarketPlace(Market market, String formattedAddress, Location location) {
+    private MarketPlace buildMarketPlace(Market market, String formattedAddress,
+        Location location) {
         return MarketPlace.builder()
             .marketId(market.getMarketId())
             .marketName(market.getMarketName())
             .marketAddress(formattedAddress)
             .latitude(location != null ? location.getLat() : null)
             .longitude(location != null ? location.getLng() : null)
+            .build();
+    }
+
+    private MarketPlaceGoogleIds buildMarketPlaceGoogleIds(String placeId,
+        MarketPlace marketPlace) {
+        return MarketPlaceGoogleIds.builder()
+            .placeId(placeId)
+            .marketPlace(marketPlace)
             .build();
     }
 

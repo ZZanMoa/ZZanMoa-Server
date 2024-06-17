@@ -1,13 +1,20 @@
 package zzandori.zzanmoa.marketplace.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import zzandori.zzanmoa.common.dto.ApiResponse;
 import zzandori.zzanmoa.marketplace.dto.MarketPlaceResponseDto;
+import zzandori.zzanmoa.marketplace.dto.MarketPlaceReviewResponseDto;
 import zzandori.zzanmoa.marketplace.service.MarketDataMigrationService;
 import zzandori.zzanmoa.marketplace.service.MarketPlaceService;
 
@@ -29,6 +36,26 @@ public class MarketPlaceController {
     public ResponseEntity<List<MarketPlaceResponseDto>> getMarketPlaces() {
         List<MarketPlaceResponseDto> marketPlaceResponseDtos = marketPlaceService.getMarketPlaces();
         return ResponseEntity.ok(marketPlaceResponseDtos);
+    }
+
+    @GetMapping("/review/{marketId}")
+    public ResponseEntity<ApiResponse<?>> getReviews(@PathVariable String marketId) {
+        MarketPlaceReviewResponseDto marketPlaceReviewResponseDto = marketPlaceService.buildMarketPlaceReviewResponse(
+            marketId);
+        List<String> reviews = marketPlaceReviewResponseDto.getReviews();
+
+        if (reviews == null) {
+            return ResponseEntity.ok(ApiResponse.builder()
+                .statusCode(HttpStatus.NO_CONTENT.value())
+                .message("리뷰가 존재하지 않습니다.")
+                .build());
+        }
+
+        return ResponseEntity.ok(ApiResponse.builder()
+            .statusCode(HttpStatus.OK.value())
+            .message("리뷰를 불러오는 데 성공하였습니다.")
+            .data(reviews)
+            .build());
     }
 
 }

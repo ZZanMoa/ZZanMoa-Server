@@ -28,7 +28,7 @@ public class SavingStore {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "store_id")
+    @Column(name = "store_id", unique = true)
     private String storeId;
 
     @Column(name = "store_name")

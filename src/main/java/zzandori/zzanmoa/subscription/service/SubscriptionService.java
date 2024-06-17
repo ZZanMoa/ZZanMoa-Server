@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import zzandori.zzanmoa.bargainboard.entity.BargainBoard;
 import zzandori.zzanmoa.bargainboard.entity.District;
 import zzandori.zzanmoa.bargainboard.repository.DistrictRepository;
-import zzandori.zzanmoa.common.dto.SuccessResponseDTO;
+import zzandori.zzanmoa.common.dto.ApiResponse;
 import zzandori.zzanmoa.exception.subscription.DistrictForSubscriptionAppException;
 import zzandori.zzanmoa.exception.subscription.SubscriptionAppException;
 import zzandori.zzanmoa.exception.subscription.SubscriptionErrorCode;
@@ -58,7 +58,7 @@ public class SubscriptionService {
             throw new SubscriptionAppException(SubscriptionErrorCode.SAVE_DATA_FAILED);
         }
 
-        return ResponseEntity.ok().body(SuccessResponseDTO.builder()
+        return ResponseEntity.ok().body(ApiResponse.builder()
             .statusCode(HttpStatus.OK.value())
             .message("구독하기 성공")
             .build());

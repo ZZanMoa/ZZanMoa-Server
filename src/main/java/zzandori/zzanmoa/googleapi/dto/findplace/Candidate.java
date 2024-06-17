@@ -1,4 +1,4 @@
-package zzandori.zzanmoa.googleapi.dto;
+package zzandori.zzanmoa.googleapi.dto.findplace;
 
 import lombok.Getter;
 
@@ -6,5 +6,6 @@ import lombok.Getter;
 public class Candidate {
 
     private String formatted_address;
+    private String place_id;
 
 }

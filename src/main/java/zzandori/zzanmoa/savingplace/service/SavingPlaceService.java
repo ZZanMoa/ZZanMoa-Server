@@ -1,27 +1,24 @@
 package zzandori.zzanmoa.savingplace.service;
 
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import zzandori.zzanmoa.googleapi.dto.Location;
+import zzandori.zzanmoa.googleapi.dto.review.Result;
+import zzandori.zzanmoa.googleapi.dto.review.Review;
+import zzandori.zzanmoa.googleapi.dto.review.ReviewResponse;
 import zzandori.zzanmoa.googleapi.service.GoogleMapApiService;
 import zzandori.zzanmoa.savingplace.dto.CategoryPriceDTO;
 import zzandori.zzanmoa.savingplace.dto.ItemInfoDTO;
+import zzandori.zzanmoa.savingplace.dto.SavingStoreReviewResponseDto;
 import zzandori.zzanmoa.savingplace.dto.StoreInfoDTO;
-import zzandori.zzanmoa.savingplace.entity.SavingItem;
-import zzandori.zzanmoa.savingplace.entity.SavingStore;
 import zzandori.zzanmoa.savingplace.repository.SavingItemRepository;
+import zzandori.zzanmoa.savingplace.repository.SavingStoreGoogleIdsRepository;
 import zzandori.zzanmoa.savingplace.repository.SavingStoreRepository;
-import zzandori.zzanmoa.thriftstore.entity.ThriftStore;
-import zzandori.zzanmoa.thriftstore.repository.ThriftStoreRepository;
 import zzandori.zzanmoa.thriftstore.service.ThriftStoreService;
 
 @RequiredArgsConstructor
@@ -30,6 +27,8 @@ public class SavingPlaceService {
 
     private final SavingStoreRepository savingStoreRepository;
     private final SavingItemRepository savingItemRepository;
+    private final SavingStoreGoogleIdsRepository savingStoreGoogleIdsRepository;
+    private final GoogleMapApiService googleMapApiService;
 
     private static final Logger logger = LoggerFactory.getLogger(ThriftStoreService.class);
 
@@ -65,4 +64,26 @@ public class SavingPlaceService {
     private String correctHtmlEntities(String input) {
         return input.replaceAll("& #(\\d+)", "&#$1;");
     }
+
+    public SavingStoreReviewResponseDto buildSavingStoreReviewResponse(String storeId) {
+        return SavingStoreReviewResponseDto.builder()
+            .reviews(getReviews(storeId))
+            .build();
+    }
+
+    private List<String> getReviews(String storeId) {
+        return savingStoreGoogleIdsRepository.findByStoreId(storeId)
+            .map(placeId -> {
+                ReviewResponse reviewResponse = googleMapApiService.requestReview(placeId);
+                if (reviewResponse.getResult() == null || reviewResponse.getResult().getReviews() == null) {
+                    return null;
+                }
+                List<String> reviews = reviewResponse.getResult().getReviews().stream()
+                    .map(Review::getText)
+                    .collect(Collectors.toList());
+                return reviews;
+            })
+            .orElse(null);
+    }
+
 }
