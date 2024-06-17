@@ -43,19 +43,15 @@ public class MarketPlaceService {
     }
 
     public List<String> getReviews(String marketId){
-        System.out.println("enter");
         return marketPlaceGoogleIdsRepository.findByMarketId(marketId)
             .map(placeId -> {
                 ReviewResponse reviewResponse = googleMapApiService.requestReview(placeId);
                 if (reviewResponse.getResult() == null || reviewResponse.getResult().getReviews() == null) {
-                    System.out.println("null");
                     return null;
                 }
                 List<String> reviews = reviewResponse.getResult().getReviews().stream()
                     .map(review -> review.getText())
                     .collect(Collectors.toList());
-                System.out.println(
-                    "Arrays.toString(reviews.toArray()) = " + Arrays.toString(reviews.toArray()));
                 return reviews;
             })
             .orElse(null);
