@@ -31,7 +31,7 @@ repositories {
         annotationProcessor 'org.projectlombok:lombok'
 
         // MySQL
-        runtimeOnly 'com.mysql:mysql-connector-j'
+        implementation 'com.mysql:mysql-connector-j'
 
         // H2
         runtimeOnly 'com.h2database:h2'
