@@ -28,44 +28,33 @@ public class GoogleMapApiService {
 
     
 
-    public Location requestGeocode(String address) throws UnsupportedEncodingException {
+    public GeocodeResponse requestGeocode(String address) {
         String requestUrl = geocodeRequest.requestUrl(address);
         Mono<GeocodeResponse> responseMono = webClientUtil.get(
             requestUrl,
             GeocodeResponse.class);
 
-        return responseMono.flatMap(dto -> {
-            return Mono.justOrEmpty(Optional.ofNullable(dto.getResults())
-                .filter(results -> !results.isEmpty())
-                .map(results -> results.get(0).getGeometry().getLocation()));
-        }).block();
+        return responseMono.block();
     }
 
-    public Candidate requestFindPlace(String address) throws UnsupportedEncodingException {
+    public FindPlaceResponse requestFindPlace(String address){
         String requestUrl = findPlaceRequest.requestUrl(address);
         Mono<FindPlaceResponse> responseMono = webClientUtil.get(
             requestUrl,
             FindPlaceResponse.class
         );
 
-        return responseMono.flatMap(dto -> {
-            return Mono.justOrEmpty(Optional.ofNullable(dto.getCandidates())
-                .filter(candidates -> !candidates.isEmpty())
-                .map(candidates -> candidates.get(0)));
-        }).block();
+        return responseMono.block();
     }
 
-    public List<Review> requestReview(String placeId) throws UnsupportedEncodingException {
+    public ReviewResponse requestReview(String placeId) {
         String requestUrl = reviewRequest.requestUrl(placeId);
         Mono<ReviewResponse> responseMono = webClientUtil.get(
             requestUrl,
             ReviewResponse.class
         );
 
-        return responseMono.flatMap(dto -> {
-            return Mono.justOrEmpty(Optional.ofNullable(dto.getResult()))
-                .map(result -> result.getReviews());
-        }).block();
+        return responseMono.block();
     }
 
 }
