@@ -12,8 +12,9 @@ import lombok.ToString;
 @Getter
 @Builder
 @ToString
-public class ApiResponse {
+public class ApiResponse<T> {
     private final LocalDateTime timestamp = LocalDateTime.now();
     private int statusCode;
     private String message;
+    private T data;
 }
