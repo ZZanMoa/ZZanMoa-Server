@@ -44,25 +44,30 @@ public class MarketDataMigrationService {
         FindPlaceResponse findPlaceResponse = googleMapApiService.requestFindPlace(market.getMarketName());
         List<Candidate> candidates = findPlaceResponse.getCandidates();
 
+        String formattedAddress = null;
+        String placeId = null;
+        Location location = null;
+
         if (!candidates.isEmpty()) {
             Candidate candidate = candidates.get(0);
-            String formattedAddress = candidate.getFormatted_address();
-            String placeId = candidate.getPlace_id();
-
-            Optional<GeocodeResponse> geocodeResponse = Optional.ofNullable(
-                googleMapApiService.requestGeocode(formattedAddress)
-            );
-
-            Optional<Location> location = geocodeResponse.map(GeocodeResponse::getResults)
-                .filter(results -> !results.isEmpty())
-                .map(results -> results.get(0).getGeometry().getLocation());
-
-            MarketPlace marketPlace = buildMarketPlace(market, formattedAddress, location.orElse(null));
-            marketPlaceRepository.save(marketPlace);
-
-            MarketPlaceGoogleIds marketPlaceGoogleIds = buildMarketPlaceGoogleIds(placeId, marketPlace);
-            marketPlaceGoogleIdsRepository.save(marketPlaceGoogleIds);
+            formattedAddress = candidates.get(0).getFormatted_address();
+            placeId = candidate.getPlace_id();
+            location = fetchLocation(formattedAddress);
         }
+
+        MarketPlace marketPlace = buildMarketPlace(market, formattedAddress, location);
+        marketPlaceRepository.save(marketPlace);
+
+        MarketPlaceGoogleIds marketPlaceGoogleIds = buildMarketPlaceGoogleIds(placeId, marketPlace);
+        marketPlaceGoogleIdsRepository.save(marketPlaceGoogleIds);
+    }
+
+    private Location fetchLocation(String address) {
+        GeocodeResponse geocodeResponse = googleMapApiService.requestGeocode(address);
+        return Optional.ofNullable(geocodeResponse)
+            .map(GeocodeResponse::getResults)
+            .filter(results -> !results.isEmpty())
+            .map(results -> results.get(0).getGeometry().getLocation()).orElse(null);
     }
 
 
