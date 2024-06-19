@@ -83,14 +83,17 @@ public class SavingDataMigrationService {
     }
 
     private void persistStoresAndItems(SavingStore savingStore) {
-        savingStoreRepository.save(savingStore);
-        savingStoreGoogleIdsRepository.save(buildSavingStoreGoogleIds(
-            getGooglePlaceId(savingStore.getAddress(), savingStore.getStoreName()), savingStore));
-        savingItemRepository.saveAll(savingStore.getItems());
+        String placeId = getGooglePlaceId(savingStore.getAddress(), savingStore.getStoreName());
+        if (placeId != null) {
+            savingStoreRepository.save(savingStore);
+            savingStoreGoogleIdsRepository.save(buildSavingStoreGoogleIds(placeId, savingStore));
+            savingItemRepository.saveAll(savingStore.getItems());
+        }
     }
 
     private String getGooglePlaceId(String address, String storeName) {
-        FindPlaceResponse findPlaceResponse = googleMapApiService.requestFindPlace(address + " " + storeName);
+        FindPlaceResponse findPlaceResponse = googleMapApiService.requestFindPlace(
+            address + " " + storeName);
         List<Candidate> candidates = findPlaceResponse.getCandidates();
 
         if (!candidates.isEmpty()) {
