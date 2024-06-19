@@ -83,12 +83,12 @@ public class SavingDataMigrationService {
     }
 
     private void persistStoresAndItems(SavingStore savingStore) {
-        savingStoreRepository.save(savingStore);
         String placeId = getGooglePlaceId(savingStore.getAddress(), savingStore.getStoreName());
         if (placeId != null) {
+            savingStoreRepository.save(savingStore);
             savingStoreGoogleIdsRepository.save(buildSavingStoreGoogleIds(placeId, savingStore));
+            savingItemRepository.saveAll(savingStore.getItems());
         }
-        savingItemRepository.saveAll(savingStore.getItems());
     }
 
     private String getGooglePlaceId(String address, String storeName) {
